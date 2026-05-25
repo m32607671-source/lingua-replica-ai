@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.get_active_plan(uuid) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.has_plan_at_least(uuid, public.subscription_plan) FROM PUBLIC, anon, authenticated;
