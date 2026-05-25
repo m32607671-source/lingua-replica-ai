@@ -19,6 +19,7 @@ export const Route = createFileRoute("/dashboard")({
 function DashboardPage() {
   const { t } = useApp();
   const { user, profile, loading } = useAuth();
+  const { subscription, activePlan } = useSubscription();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,7 +35,7 @@ function DashboardPage() {
     { label: t("dash.stats.translations"), value: (profile?.translations_count ?? 0).toLocaleString(), icon: TrendingUp },
     { label: t("dash.stats.words"), value: (profile?.words_count ?? 0).toLocaleString(), icon: FileText },
     { label: t("dash.stats.languages"), value: "—", icon: LangIcon },
-    { label: "Plan", value: profile?.plan ?? "free", icon: Star },
+    { label: "Plan", value: activePlan, icon: Star },
   ];
   const recent = [
     { from: "English", to: "العربية", text: "Welcome to the future of translation.", time: "2m ago" },
