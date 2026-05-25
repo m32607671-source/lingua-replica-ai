@@ -4,8 +4,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useApp } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
+import { useSubscription } from "@/lib/subscription";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, Languages as LangIcon, Star, FileText, Crown, ArrowRight } from "lucide-react";
+import { TrendingUp, Languages as LangIcon, Star, FileText, Crown, ArrowRight, CheckCircle2, Clock, XCircle, AlertCircle } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
