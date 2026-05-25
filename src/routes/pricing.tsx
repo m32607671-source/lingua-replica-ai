@@ -121,14 +121,23 @@ function PricingPage() {
                   <span className="text-5xl font-bold">${p.price}</span>
                   <span className="text-muted-foreground text-sm">/mo</span>
                 </div>
-                <Link to="/register" className="block mt-6">
+                {p.popular ? (
                   <Button
-                    className={`w-full h-11 ${p.popular ? "bg-gradient-primary text-white shadow-glow" : ""}`}
-                    variant={p.popular ? "default" : "outline"}
+                    onClick={handleProCheckout}
+                    className="w-full h-11 mt-6 bg-gradient-primary text-white shadow-glow"
                   >
                     {p.cta}
                   </Button>
-                </Link>
+                ) : (
+                  <Link to="/register" className="block mt-6">
+                    <Button
+                      className="w-full h-11"
+                      variant="outline"
+                    >
+                      {p.cta}
+                    </Button>
+                  </Link>
+                )}
                 <ul className="mt-8 space-y-3">
                   {p.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm">
