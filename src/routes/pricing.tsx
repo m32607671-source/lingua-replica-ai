@@ -46,6 +46,15 @@ function PricingPage() {
       user_name: name,
     });
 
+    // Create a pending Pro subscription (admin will activate after payment)
+    void supabase.from("subscriptions").insert({
+      user_id: user.id,
+      plan: "pro",
+      status: "pending",
+      payment_status: "pending",
+      notes: `Awaiting payment via WhatsApp (${yearly ? "yearly" : "monthly"} billing)`,
+    });
+
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   };
