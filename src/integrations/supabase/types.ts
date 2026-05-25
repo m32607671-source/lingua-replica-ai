@@ -44,6 +44,39 @@ export type Database = {
         }
         Relationships: []
       }
+      checkout_events: {
+        Row: {
+          billing: string
+          channel: string
+          created_at: string
+          id: string
+          plan: string
+          user_email: string | null
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          billing: string
+          channel?: string
+          created_at?: string
+          id?: string
+          plan: string
+          user_email?: string | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          billing?: string
+          channel?: string
+          created_at?: string
+          id?: string
+          plan?: string
+          user_email?: string | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
