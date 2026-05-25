@@ -1,9 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Check, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useApp } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+const WHATSAPP_NUMBER = "201022583151";
 
 export const Route = createFileRoute("/pricing")({
   component: PricingPage,
@@ -18,7 +23,32 @@ export const Route = createFileRoute("/pricing")({
 
 function PricingPage() {
   const { t } = useApp();
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [yearly, setYearly] = useState(false);
+
+  const handleProCheckout = async () => {
+    if (!user) {
+      toast.info("Please sign in to continue");
+      navigate({ to: "/login", search: { redirect: "/pricing?checkout=pro" } as never });
+      return;
+    }
+    const name = profile?.full_name || user.email?.split("@")[0] || "";
+    const email = user.email || "";
+    const message = `Hello Lingua AI Team,\n\nI would like to subscribe to the Pro Plan.\n\nMy account email:\n${email}\n\nMy account name:\n${name}\n\nPlease contact me regarding payment and activation.`;
+
+    void supabase.from("checkout_events").insert({
+      user_id: user.id,
+      plan: "pro",
+      billing: yearly ? "yearly" : "monthly",
+      channel: "whatsapp",
+      user_email: email,
+      user_name: name,
+    });
+
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   const plans = [
     {
@@ -91,14 +121,23 @@ function PricingPage() {
                   <span className="text-5xl font-bold">${p.price}</span>
                   <span className="text-muted-foreground text-sm">/mo</span>
                 </div>
-                <Link to="/register" className="block mt-6">
+                {p.popular ? (
                   <Button
-                    className={`w-full h-11 ${p.popular ? "bg-gradient-primary text-white shadow-glow" : ""}`}
-                    variant={p.popular ? "default" : "outline"}
+                    onClick={handleProCheckout}
+                    className="w-full h-11 mt-6 bg-gradient-primary text-white shadow-glow"
                   >
                     {p.cta}
                   </Button>
-                </Link>
+                ) : (
+                  <Link to="/register" className="block mt-6">
+                    <Button
+                      className="w-full h-11"
+                      variant="outline"
+                    >
+                      {p.cta}
+                    </Button>
+                  </Link>
+                )}
                 <ul className="mt-8 space-y-3">
                   {p.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm">

@@ -10,6 +10,9 @@ import { GoogleButton } from "@/components/auth/GoogleButton";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
+  validateSearch: (s: Record<string, unknown>) => ({
+    redirect: typeof s.redirect === "string" ? s.redirect : undefined,
+  }),
   head: () => ({
     meta: [{ title: "Sign in — Lingua AI" }, { name: "description", content: "Sign in to Lingua AI." }],
     links: [{ rel: "canonical", href: "/login" }],
@@ -19,6 +22,7 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const { t } = useApp();
   const navigate = useNavigate();
+  const search = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,7 +37,11 @@ function LoginPage() {
       return;
     }
     toast.success("Welcome back!");
-    navigate({ to: "/dashboard" });
+    if (search.redirect) {
+      window.location.href = search.redirect;
+    } else {
+      navigate({ to: "/dashboard" });
+    }
   };
 
   return (
