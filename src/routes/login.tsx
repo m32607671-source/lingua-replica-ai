@@ -10,6 +10,9 @@ import { GoogleButton } from "@/components/auth/GoogleButton";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
+  validateSearch: (s: Record<string, unknown>) => ({
+    redirect: typeof s.redirect === "string" ? s.redirect : undefined,
+  }),
   head: () => ({
     meta: [{ title: "Sign in — Lingua AI" }, { name: "description", content: "Sign in to Lingua AI." }],
     links: [{ rel: "canonical", href: "/login" }],
