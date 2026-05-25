@@ -93,23 +93,74 @@ function DashboardPage() {
               </div>
             </div>
 
-            <div className="glass rounded-3xl p-6 bg-gradient-soft border-2 border-primary/30">
-              <Crown className="w-8 h-8 text-primary mb-3" />
-              <h3 className="font-bold text-lg">Go Pro</h3>
-              <p className="text-sm text-muted-foreground mt-1">Unlock unlimited translations & document support.</p>
-              <div className="mt-4 text-sm">
-                <div className="flex justify-between mb-1">
-                  <span>{t("dash.usage")}</span>
-                  <span className="font-medium">62%</span>
-                </div>
-                <div className="h-2 rounded-full bg-background/60 overflow-hidden">
-                  <div className="h-full bg-gradient-primary" style={{ width: "62%" }} />
-                </div>
-              </div>
-              <Link to="/pricing" className="block mt-5">
-                <Button className="w-full bg-gradient-primary text-white shadow-glow">{t("dash.upgrade")}</Button>
-              </Link>
-            </div>
+            <SubscriptionCard subscription={subscription} activePlan={activePlan} />
+          </div>
+        </div>
+      </section>
+    </SiteLayout>
+  );
+}
+
+function SubscriptionCard({
+  subscription,
+  activePlan,
+}: {
+  subscription: ReturnType<typeof useSubscription>["subscription"];
+  activePlan: ReturnType<typeof useSubscription>["activePlan"];
+}) {
+  const statusMeta = {
+    active: { icon: CheckCircle2, color: "text-emerald-500", label: "Active" },
+    pending: { icon: Clock, color: "text-amber-500", label: "Pending" },
+    expired: { icon: AlertCircle, color: "text-orange-500", label: "Expired" },
+    cancelled: { icon: XCircle, color: "text-red-500", label: "Cancelled" },
+  } as const;
+  const meta = subscription ? statusMeta[subscription.status] : statusMeta.active;
+  const StatusIcon = meta.icon;
+
+  const planLabel = activePlan.charAt(0).toUpperCase() + activePlan.slice(1);
+  const fmt = (d: string | null | undefined) =>
+    d ? new Date(d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "—";
+
+  return (
+    <div className="glass rounded-3xl p-6 bg-gradient-soft border-2 border-primary/30">
+      <Crown className="w-8 h-8 text-primary mb-3" />
+      <h3 className="font-bold text-lg">Subscription</h3>
+      <p className="text-sm text-muted-foreground mt-1">Your current plan and billing status.</p>
+
+      <div className="mt-4 space-y-2 text-sm">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Plan</span>
+          <span className="font-semibold">{planLabel}</span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-muted-foreground">Status</span>
+          <span className={`font-medium flex items-center gap-1.5 ${meta.color}`}>
+            <StatusIcon className="w-4 h-4" /> {meta.label}
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Payment</span>
+          <span className="font-medium capitalize">{subscription?.payment_status ?? "—"}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Start</span>
+          <span>{fmt(subscription?.start_date)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">End</span>
+          <span>{fmt(subscription?.end_date)}</span>
+        </div>
+        {subscription?.notes && (
+          <p className="text-xs text-muted-foreground pt-2 border-t border-border/40">{subscription.notes}</p>
+        )}
+      </div>
+
+      {activePlan !== "business" && (
+        <Link to="/pricing" className="block mt-5">
+          <Button className="w-full bg-gradient-primary text-white shadow-glow">Upgrade plan</Button>
+        </Link>
+      )}
+    </div>
           </div>
         </div>
       </section>
