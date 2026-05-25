@@ -161,9 +161,5 @@ function SubscriptionCard({
         </Link>
       )}
     </div>
-          </div>
-        </div>
-      </section>
-    </SiteLayout>
   );
 }
