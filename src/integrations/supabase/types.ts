@@ -134,6 +134,45 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          id: string
+          notes: string | null
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          start_date: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          start_date?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          start_date?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_id: string
@@ -168,10 +207,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_active_plan: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["subscription_plan"]
+      }
+      has_plan_at_least: {
+        Args: {
+          _min_plan: Database["public"]["Enums"]["subscription_plan"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      payment_status: "unpaid" | "pending" | "paid" | "refunded" | "failed"
+      subscription_plan: "free" | "pro" | "business"
+      subscription_status: "active" | "expired" | "pending" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -298,6 +349,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      payment_status: ["unpaid", "pending", "paid", "refunded", "failed"],
+      subscription_plan: ["free", "pro", "business"],
+      subscription_status: ["active", "expired", "pending", "cancelled"],
+    },
   },
 } as const
