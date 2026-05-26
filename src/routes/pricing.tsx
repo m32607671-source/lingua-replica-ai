@@ -56,7 +56,17 @@ function PricingPage() {
     });
 
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+
+    // Detect mobile devices for direct redirect to WhatsApp app
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      // On mobile: direct redirect to open WhatsApp app (or web page if not installed)
+      window.location.href = url;
+    } else {
+      // On desktop: open in new tab — no iframe, modal, or embedded browser
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
   };
 
   const plans = [
