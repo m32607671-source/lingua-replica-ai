@@ -3,12 +3,14 @@ import { Moon, Sun, Globe, Menu, X, User as UserIcon, LogOut } from "lucide-reac
 import { useState } from "react";
 import { useApp } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
+import { useIsAdmin } from "@/lib/useIsAdmin";
 import { Button } from "@/components/ui/button";
 import { Logo } from "./Logo";
 
 export function Header() {
   const { t, locale, setLocale, theme, toggleTheme } = useApp();
   const { user, profile, signOut } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const [open, setOpen] = useState(false);
 
   const links = [
@@ -16,6 +18,7 @@ export function Header() {
     { to: "/translate", label: t("nav.translate") },
     { to: "/pricing", label: t("nav.pricing") },
     { to: "/dashboard", label: t("nav.dashboard") },
+    ...(isAdmin ? [{ to: "/admin", label: "Admin" } as const] : []),
   ] as const;
 
   return (
