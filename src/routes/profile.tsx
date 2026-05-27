@@ -60,6 +60,7 @@ function levelFromXp(xp: number) {
 function ProfilePage() {
   const { t, theme, setTheme, locale, setLocale } = useApp();
   const { user, profile, loading, refreshProfile, signOut } = useAuth();
+  const { activePlan } = useSubscription();
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
 
