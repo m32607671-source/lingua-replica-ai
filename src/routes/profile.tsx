@@ -252,7 +252,7 @@ function ProfilePage() {
                 <Row label="Translations" value={profile.translations_count.toLocaleString()} />
                 <Row label="Words translated" value={profile.words_count.toLocaleString()} />
                 <Row label="Avg per translation" value={profile.translations_count ? Math.round(profile.words_count / profile.translations_count).toString() : "0"} />
-                <Row label="Plan" value={profile.plan} capitalize />
+                <Row label="Plan" value={activePlan} capitalize />
               </div>
             </div>
           </div>
