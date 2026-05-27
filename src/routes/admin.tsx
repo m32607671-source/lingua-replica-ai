@@ -77,22 +77,28 @@ function AdminPage() {
     if (!authLoading && !user) navigate({ to: "/login" });
   }, [authLoading, user, navigate]);
 
+  const [diag, setDiag] = useState<Record<string, unknown> | null>(null);
+
   const load = useCallback(async () => {
     setLoading(true);
-    const [{ data: users }, { data: subs }] = await Promise.all([
-      supabase.from("admin_users_view").select("*").order("user_created_at", { ascending: false }),
+    const [usersRes, subsRes, diagRes] = await Promise.all([
+      (supabase.rpc as unknown as (fn: string) => Promise<{ data: AdminUser[] | null; error: { message: string } | null }>)("get_admin_users"),
       supabase.from("subscriptions").select("*").order("created_at", { ascending: false }),
+      (supabase.rpc as unknown as (fn: string) => Promise<{ data: Record<string, unknown> | null; error: { message: string } | null }>)("admin_diagnostics"),
     ]);
+    if (usersRes.error) toast.error(`Users: ${usersRes.error.message}`);
+    if (subsRes.error) toast.error(`Subs: ${subsRes.error.message}`);
+    setDiag(diagRes.data ?? null);
 
     const subByUser = new Map<string, Sub>();
-    for (const s of (subs ?? []) as Sub[]) {
+    for (const s of (subsRes.data ?? []) as Sub[]) {
       const cur = subByUser.get(s.user_id);
       if (!cur) { subByUser.set(s.user_id, s); continue; }
       const score = (x: Sub) =>
         (x.status === "active" ? 100 : 0) + PLAN_RANK[x.plan];
       if (score(s) > score(cur)) subByUser.set(s.user_id, s);
     }
-    const merged: Row[] = ((users ?? []) as AdminUser[]).map((u) => ({
+    const merged: Row[] = ((usersRes.data ?? []) as AdminUser[]).map((u) => ({
       ...u,
       sub: subByUser.get(u.id) ?? null,
     }));
