@@ -225,24 +225,26 @@ export type Database = {
       }
     }
     Views: {
-      admin_users_view: {
-        Row: {
-          avatar_url: string | null
-          email: string | null
-          full_name: string | null
-          id: string | null
-          last_sign_in_at: string | null
-          profile_created_at: string | null
-          profile_plan: string | null
-          user_created_at: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
+      admin_diagnostics: { Args: never; Returns: Json }
       get_active_plan: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["subscription_plan"]
+      }
+      get_admin_users: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          email: string
+          full_name: string
+          id: string
+          last_sign_in_at: string
+          profile_created_at: string
+          profile_plan: string
+          user_created_at: string
+        }[]
       }
       has_plan_at_least: {
         Args: {
