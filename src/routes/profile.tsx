@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useApp } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
+import { useSubscription } from "@/lib/subscription";
 import { Button } from "@/components/ui/button";
 import {
   User, Mail, Moon, Sun, Globe, Camera, Lock, FileText, Crown, Flame,
