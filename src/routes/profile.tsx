@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useApp } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
+import { useSubscription } from "@/lib/subscription";
 import { Button } from "@/components/ui/button";
 import {
   User, Mail, Moon, Sun, Globe, Camera, Lock, FileText, Crown, Flame,
@@ -59,6 +60,7 @@ function levelFromXp(xp: number) {
 function ProfilePage() {
   const { t, theme, setTheme, locale, setLocale } = useApp();
   const { user, profile, loading, refreshProfile, signOut } = useAuth();
+  const { activePlan } = useSubscription();
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -189,7 +191,7 @@ function ProfilePage() {
                   <h1 className="text-2xl md:text-3xl font-bold tracking-tight truncate">
                     {profile.full_name || user.email}
                   </h1>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-gradient-primary text-white capitalize">{profile.plan}</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-gradient-primary text-white capitalize">{activePlan}</span>
                 </div>
                 <div className="text-sm text-muted-foreground mt-0.5 truncate">{user.email}</div>
                 {profile.bio && <p className="mt-2 text-sm text-foreground/80 max-w-xl">{profile.bio}</p>}
@@ -250,7 +252,7 @@ function ProfilePage() {
                 <Row label="Translations" value={profile.translations_count.toLocaleString()} />
                 <Row label="Words translated" value={profile.words_count.toLocaleString()} />
                 <Row label="Avg per translation" value={profile.translations_count ? Math.round(profile.words_count / profile.translations_count).toString() : "0"} />
-                <Row label="Plan" value={profile.plan} capitalize />
+                <Row label="Plan" value={activePlan} capitalize />
               </div>
             </div>
           </div>
