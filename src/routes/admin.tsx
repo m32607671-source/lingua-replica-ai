@@ -159,6 +159,13 @@ function AdminPage() {
           <p className="text-muted-foreground">Manage users, plans, and payments.</p>
         </div>
 
+        {diag && (
+          <div className="rounded-lg border border-dashed bg-muted/30 p-4 text-sm">
+            <div className="font-semibold mb-2">Diagnostics (temporary)</div>
+            <pre className="text-xs whitespace-pre-wrap break-all">{JSON.stringify(diag, null, 2)}</pre>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard icon={Users} label="Total users" value={analytics.total} />
           <StatCard icon={TrendingUp} label="Active" value={analytics.byStatus.active} />
