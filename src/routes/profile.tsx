@@ -191,7 +191,7 @@ function ProfilePage() {
                   <h1 className="text-2xl md:text-3xl font-bold tracking-tight truncate">
                     {profile.full_name || user.email}
                   </h1>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-gradient-primary text-white capitalize">{profile.plan}</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-gradient-primary text-white capitalize">{activePlan}</span>
                 </div>
                 <div className="text-sm text-muted-foreground mt-0.5 truncate">{user.email}</div>
                 {profile.bio && <p className="mt-2 text-sm text-foreground/80 max-w-xl">{profile.bio}</p>}
