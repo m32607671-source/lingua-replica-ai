@@ -77,6 +77,51 @@ export type Database = {
         }
         Relationships: []
       }
+      companion_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      companion_prefs: {
+        Row: {
+          character: string
+          created_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          character?: string
+          created_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          character?: string
+          created_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -229,6 +274,7 @@ export type Database = {
     }
     Functions: {
       admin_diagnostics: { Args: never; Returns: Json }
+      companion_daily_used: { Args: { _user_id: string }; Returns: number }
       get_active_plan: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["subscription_plan"]
