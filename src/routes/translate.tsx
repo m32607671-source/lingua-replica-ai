@@ -25,9 +25,22 @@ import { translateText } from "@/lib/translate.functions";
 import { LanguagePicker } from "@/components/translate/LanguagePicker";
 import { isRtl, languageLabel, getLanguage } from "@/lib/languages";
 
+export const Route = createFileRoute("/translate")({
+  component: TranslatePage,
+  head: () => ({
+    meta: [
+      { title: "Translate — Lingua AI" },
+      { name: "description", content: "Translate text instantly across 100+ languages with AI." },
+    ],
+    links: [{ rel: "canonical", href: "/translate" }],
+  }),
+});
+
 const MAX_CHARS = 5000;
 
 const langName = (code: string) => getLanguage(code)?.native ?? code.toUpperCase();
+void languageLabel;
+
 
 
 // Tiny deterministic pseudo-detection by character ranges
