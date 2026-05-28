@@ -12,7 +12,7 @@ import {
   Share2,
   Wand2,
   Check,
-  Check,
+
   Trash2,
   FileText,
 } from "lucide-react";

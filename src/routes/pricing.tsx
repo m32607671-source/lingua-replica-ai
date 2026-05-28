@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Check, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -10,10 +10,6 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/pricing")({
   component: PricingPage,
-  validateSearch: (s: Record<string, unknown>) => ({
-    checkout: typeof s.checkout === "string" ? (s.checkout as "pro" | "business") : undefined,
-    billing: typeof s.billing === "string" ? (s.billing as "monthly" | "yearly") : undefined,
-  }),
   head: () => ({
     meta: [
       { title: "Pricing — Lingua AI" },
@@ -23,12 +19,21 @@ export const Route = createFileRoute("/pricing")({
   }),
 });
 
+function readQuery() {
+  if (typeof window === "undefined") return { checkout: "", billing: "" };
+  const s = new URLSearchParams(window.location.search);
+  return {
+    checkout: s.get("checkout") ?? "",
+    billing: s.get("billing") ?? "",
+  };
+}
+
 function PricingPage() {
   const { t } = useApp();
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const search = useSearch({ from: "/pricing" });
-  const [yearly, setYearly] = useState(search.billing === "yearly");
+  const [qs] = useState(readQuery);
+  const [yearly, setYearly] = useState(qs.billing === "yearly");
   const resumedRef = useRef(false);
 
   const handleCheckout = (plan: "pro" | "business") => {
@@ -51,18 +56,19 @@ function PricingPage() {
   // Resume checkout after login
   useEffect(() => {
     if (resumedRef.current) return;
-    if (!user || !search.checkout) return;
+    if (!user || !qs.checkout) return;
     resumedRef.current = true;
-    const plan = search.checkout === "business" ? "business" : "pro";
+    const plan = qs.checkout === "business" ? "business" : "pro";
     startWhatsAppCheckout({
       plan,
       user: { id: user.id, email: user.email },
       profileName: profile?.full_name,
-      billing: search.billing === "yearly" ? "yearly" : "monthly",
+      billing: qs.billing === "yearly" ? "yearly" : "monthly",
     });
-    // Clear the search params after resuming
-    navigate({ to: "/pricing", search: {} as never, replace: true });
-  }, [user, profile, search.checkout, search.billing, navigate]);
+    if (typeof window !== "undefined") {
+      window.history.replaceState({}, "", "/pricing");
+    }
+  }, [user, profile, qs.checkout, qs.billing]);
 
   const plans = [
     {
