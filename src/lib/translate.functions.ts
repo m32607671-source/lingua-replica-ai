@@ -1,25 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-
-const LANG_NAMES: Record<string, string> = {
-  auto: "auto-detected source language",
-  en: "English",
-  ar: "Arabic",
-  es: "Spanish",
-  fr: "French",
-  de: "German",
-  zh: "Chinese",
-  ja: "Japanese",
-  ko: "Korean",
-  ru: "Russian",
-  pt: "Portuguese",
-  it: "Italian",
-  tr: "Turkish",
-  hi: "Hindi",
-  fa: "Persian",
-  he: "Hebrew",
-  ur: "Urdu",
-};
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { LANG_NAMES, FREE_CODES } from "@/lib/languages";
 
 const InputSchema = z.object({
   text: z.string().trim().min(1).max(5000),
@@ -31,11 +13,30 @@ const SYSTEM_PROMPT =
   "You are a professional translator. Translate the text accurately while preserving meaning, tone, and context. Return only the translation without explanations.";
 
 export const translateText = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => InputSchema.parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    // Determine active plan
+    const { data: planRow } = await supabase.rpc("get_active_plan", { _user_id: userId });
+    const plan = (planRow as string) || "free";
+
+    // Free-plan language gate (backend enforcement).
+    if (plan === "free") {
+      const target = data.to.toLowerCase();
+      const source = data.from === "auto" ? null : data.from.toLowerCase();
+      if (!FREE_CODES.has(target) || (source && !FREE_CODES.has(source))) {
+        return {
+          translation: "",
+          error: "This language requires Pro or Business. Please upgrade to unlock 100+ languages.",
+        };
+      }
+    }
+
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) {
-      throw new Error("Translation service is not configured.");
+      return { translation: "", error: "Translation service is not configured." };
     }
 
     const fromName = LANG_NAMES[data.from] ?? data.from;
@@ -45,6 +46,8 @@ export const translateText = createServerFn({ method: "POST" })
         ? `Translate the following text into ${toName}:\n\n${data.text}`
         : `Translate the following text from ${fromName} into ${toName}:\n\n${data.text}`;
 
+    const model = plan === "business" ? "openai/gpt-5" : "openai/gpt-5-mini";
+
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -52,7 +55,7 @@ export const translateText = createServerFn({ method: "POST" })
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "openai/gpt-5-mini",
+        model,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: userPrompt },
