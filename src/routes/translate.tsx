@@ -11,7 +11,7 @@ import {
   Save,
   Share2,
   Wand2,
-  Languages,
+  Check,
   Check,
   Trash2,
   FileText,
@@ -23,7 +23,7 @@ import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { translateText } from "@/lib/translate.functions";
 import { LanguagePicker } from "@/components/translate/LanguagePicker";
-import { isRtl, languageLabel, getLanguage } from "@/lib/languages";
+import { isRtl, getLanguage } from "@/lib/languages";
 
 export const Route = createFileRoute("/translate")({
   component: TranslatePage,
@@ -39,7 +39,7 @@ export const Route = createFileRoute("/translate")({
 const MAX_CHARS = 5000;
 
 const langName = (code: string) => getLanguage(code)?.native ?? code.toUpperCase();
-void languageLabel;
+
 
 
 
