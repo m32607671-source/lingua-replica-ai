@@ -1,14 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Check, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useApp } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
-import { supabase } from "@/integrations/supabase/client";
+import { startWhatsAppCheckout } from "@/lib/whatsapp-checkout";
 import { toast } from "sonner";
-
-const WHATSAPP_NUMBER = "201022583151";
 
 export const Route = createFileRoute("/pricing")({
   component: PricingPage,
@@ -21,56 +19,60 @@ export const Route = createFileRoute("/pricing")({
   }),
 });
 
+function readQuery() {
+  if (typeof window === "undefined") return { checkout: "", billing: "" };
+  const s = new URLSearchParams(window.location.search);
+  return {
+    checkout: s.get("checkout") ?? "",
+    billing: s.get("billing") ?? "",
+  };
+}
+
 function PricingPage() {
   const { t } = useApp();
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const [yearly, setYearly] = useState(false);
+  const [qs] = useState(readQuery);
+  const [yearly, setYearly] = useState(qs.billing === "yearly");
+  const resumedRef = useRef(false);
 
-  const handleProCheckout = async () => {
+  const handleCheckout = (plan: "pro" | "business") => {
     if (!user) {
       toast.info("Please sign in to continue");
-      navigate({ to: "/login", search: { redirect: "/pricing?checkout=pro" } as never });
+      navigate({
+        to: "/login",
+        search: { redirect: `/pricing?checkout=${plan}&billing=${yearly ? "yearly" : "monthly"}` } as never,
+      });
       return;
     }
-    const name = profile?.full_name || user.email?.split("@")[0] || "";
-    const email = user.email || "";
-    const message = `Hello Lingua AI Team,\n\nI would like to subscribe to the Pro Plan.\n\nMy account email:\n${email}\n\nMy account name:\n${name}\n\nPlease contact me regarding payment and activation.`;
-
-    void supabase.from("checkout_events").insert({
-      user_id: user.id,
-      plan: "pro",
+    startWhatsAppCheckout({
+      plan,
+      user: { id: user.id, email: user.email },
+      profileName: profile?.full_name,
       billing: yearly ? "yearly" : "monthly",
-      channel: "whatsapp",
-      user_email: email,
-      user_name: name,
     });
-
-    // Create a pending Pro subscription (admin will activate after payment)
-    void supabase.from("subscriptions").insert({
-      user_id: user.id,
-      plan: "pro",
-      status: "pending",
-      payment_status: "pending",
-      notes: `Awaiting payment via WhatsApp (${yearly ? "yearly" : "monthly"} billing)`,
-    });
-
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-
-    // Detect mobile devices for direct redirect to WhatsApp app
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-    if (isMobile) {
-      // On mobile: direct redirect to open WhatsApp app (or web page if not installed)
-      window.location.href = url;
-    } else {
-      // On desktop: open in new tab — no iframe, modal, or embedded browser
-      window.open(url, "_blank", "noopener,noreferrer");
-    }
   };
+
+  // Resume checkout after login
+  useEffect(() => {
+    if (resumedRef.current) return;
+    if (!user || !qs.checkout) return;
+    resumedRef.current = true;
+    const plan = qs.checkout === "business" ? "business" : "pro";
+    startWhatsAppCheckout({
+      plan,
+      user: { id: user.id, email: user.email },
+      profileName: profile?.full_name,
+      billing: qs.billing === "yearly" ? "yearly" : "monthly",
+    });
+    if (typeof window !== "undefined") {
+      window.history.replaceState({}, "", "/pricing");
+    }
+  }, [user, profile, qs.checkout, qs.billing]);
 
   const plans = [
     {
+      key: "free" as const,
       name: t("pricing.free.name"),
       desc: t("pricing.free.desc"),
       price: 0,
@@ -79,19 +81,21 @@ function PricingPage() {
       popular: false,
     },
     {
+      key: "pro" as const,
       name: t("pricing.pro.name"),
       desc: t("pricing.pro.desc"),
       price: yearly ? 15 : 19,
       features: ["Unlimited text", "100+ languages", "Document translation", "API access", "Priority support"],
-      cta: t("pricing.cta"),
+      cta: "Start Now",
       popular: true,
     },
     {
+      key: "business" as const,
       name: t("pricing.business.name"),
       desc: t("pricing.business.desc"),
       price: yearly ? 49 : 59,
       features: ["Everything in Pro", "Team workspace", "Custom glossaries", "SOC 2 & SSO", "Dedicated manager"],
-      cta: t("pricing.cta.contact"),
+      cta: "Start Now",
       popular: false,
     },
   ];
@@ -124,7 +128,7 @@ function PricingPage() {
           <div className="grid md:grid-cols-3 gap-6">
             {plans.map((p) => (
               <div
-                key={p.name}
+                key={p.key}
                 className={`relative glass rounded-3xl p-8 transition-all hover:-translate-y-1 ${
                   p.popular ? "border-2 border-primary/50 shadow-glow" : ""
                 }`}
@@ -140,22 +144,20 @@ function PricingPage() {
                   <span className="text-5xl font-bold">${p.price}</span>
                   <span className="text-muted-foreground text-sm">/mo</span>
                 </div>
-                {p.popular ? (
-                  <Button
-                    onClick={handleProCheckout}
-                    className="w-full h-11 mt-6 bg-gradient-primary text-white shadow-glow"
-                  >
-                    {p.cta}
-                  </Button>
-                ) : (
+                {p.key === "free" ? (
                   <Link to="/register" className="block mt-6">
-                    <Button
-                      className="w-full h-11"
-                      variant="outline"
-                    >
+                    <Button className="w-full h-11" variant="outline">
                       {p.cta}
                     </Button>
                   </Link>
+                ) : (
+                  <Button
+                    onClick={() => handleCheckout(p.key)}
+                    className={`w-full h-11 mt-6 ${p.popular ? "bg-gradient-primary text-white shadow-glow" : ""}`}
+                    variant={p.popular ? "default" : "outline"}
+                  >
+                    {p.cta}
+                  </Button>
                 )}
                 <ul className="mt-8 space-y-3">
                   {p.features.map((f) => (

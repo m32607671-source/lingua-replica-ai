@@ -11,8 +11,8 @@ import {
   Save,
   Share2,
   Wand2,
-  Languages,
   Check,
+
   Trash2,
   FileText,
 } from "lucide-react";
@@ -22,6 +22,8 @@ import { useApp } from "@/lib/i18n";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { translateText } from "@/lib/translate.functions";
+import { LanguagePicker } from "@/components/translate/LanguagePicker";
+import { isRtl, getLanguage } from "@/lib/languages";
 
 export const Route = createFileRoute("/translate")({
   component: TranslatePage,
@@ -34,28 +36,12 @@ export const Route = createFileRoute("/translate")({
   }),
 });
 
-const LANGS = [
-  { code: "en", name: "English" },
-  { code: "ar", name: "العربية" },
-  { code: "es", name: "Español" },
-  { code: "fr", name: "Français" },
-  { code: "de", name: "Deutsch" },
-  { code: "zh", name: "中文" },
-  { code: "ja", name: "日本語" },
-  { code: "ko", name: "한국어" },
-  { code: "ru", name: "Русский" },
-  { code: "pt", name: "Português" },
-  { code: "it", name: "Italiano" },
-  { code: "tr", name: "Türkçe" },
-  { code: "hi", name: "हिन्दी" },
-  { code: "fa", name: "فارسی" },
-];
-
 const MAX_CHARS = 5000;
 
-const isRtl = (code: string) => ["ar", "fa", "he", "ur"].includes(code);
-const langName = (code: string) =>
-  LANGS.find((l) => l.code === code)?.name ?? code.toUpperCase();
+const langName = (code: string) => getLanguage(code)?.native ?? code.toUpperCase();
+
+
+
 
 // Tiny deterministic pseudo-detection by character ranges
 function detectLanguage(text: string): string {
@@ -244,25 +230,15 @@ function TranslatePage() {
           <div className="glass rounded-3xl p-4 md:p-6 shadow-elegant animate-fade-up">
             {/* Language bar */}
             <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-5">
-              <div className="flex-1 relative">
-                <Languages className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                <select
+              <div className="flex-1">
+                <LanguagePicker
                   value={from}
-                  onChange={(e) => setFrom(e.target.value)}
-                  className="w-full h-12 ps-10 pe-4 rounded-2xl bg-background/60 border border-border focus:outline-none focus:ring-2 focus:ring-ring text-sm font-medium cursor-pointer transition-all hover:border-primary/40"
-                >
-                  <option value="auto">
-                    {t("translate.detect")}
-                    {detected ? ` · ${langName(detected)}` : ""}
-                  </option>
-                  {LANGS.map((l) => (
-                    <option key={l.code} value={l.code}>
-                      {l.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setFrom}
+                  withAuto
+                  detectedCode={detected}
+                  ariaLabel={t("translate.detect")}
+                />
               </div>
-
               <button
                 onClick={swap}
                 className="h-12 w-12 mx-auto rounded-2xl glass grid place-items-center hover:shadow-glow hover:rotate-180 transition-all duration-500 shrink-0 group"
@@ -270,22 +246,11 @@ function TranslatePage() {
               >
                 <ArrowLeftRight className="w-4 h-4 group-hover:text-primary transition-colors" />
               </button>
-
-              <div className="flex-1 relative">
-                <Languages className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                <select
-                  value={to}
-                  onChange={(e) => setTo(e.target.value)}
-                  className="w-full h-12 ps-10 pe-4 rounded-2xl bg-background/60 border border-border focus:outline-none focus:ring-2 focus:ring-ring text-sm font-medium cursor-pointer transition-all hover:border-primary/40"
-                >
-                  {LANGS.map((l) => (
-                    <option key={l.code} value={l.code}>
-                      {l.name}
-                    </option>
-                  ))}
-                </select>
+              <div className="flex-1">
+                <LanguagePicker value={to} onChange={setTo} ariaLabel="Target language" />
               </div>
             </div>
+
 
             {/* Panels */}
             <div className="grid md:grid-cols-2 gap-4">
