@@ -22,40 +22,13 @@ import { useApp } from "@/lib/i18n";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { translateText } from "@/lib/translate.functions";
-
-export const Route = createFileRoute("/translate")({
-  component: TranslatePage,
-  head: () => ({
-    meta: [
-      { title: "Translate — Lingua AI" },
-      { name: "description", content: "Translate text instantly across 100+ languages with AI." },
-    ],
-    links: [{ rel: "canonical", href: "/translate" }],
-  }),
-});
-
-const LANGS = [
-  { code: "en", name: "English" },
-  { code: "ar", name: "العربية" },
-  { code: "es", name: "Español" },
-  { code: "fr", name: "Français" },
-  { code: "de", name: "Deutsch" },
-  { code: "zh", name: "中文" },
-  { code: "ja", name: "日本語" },
-  { code: "ko", name: "한국어" },
-  { code: "ru", name: "Русский" },
-  { code: "pt", name: "Português" },
-  { code: "it", name: "Italiano" },
-  { code: "tr", name: "Türkçe" },
-  { code: "hi", name: "हिन्दी" },
-  { code: "fa", name: "فارسی" },
-];
+import { LanguagePicker } from "@/components/translate/LanguagePicker";
+import { isRtl, languageLabel, getLanguage } from "@/lib/languages";
 
 const MAX_CHARS = 5000;
 
-const isRtl = (code: string) => ["ar", "fa", "he", "ur"].includes(code);
-const langName = (code: string) =>
-  LANGS.find((l) => l.code === code)?.name ?? code.toUpperCase();
+const langName = (code: string) => getLanguage(code)?.native ?? code.toUpperCase();
+
 
 // Tiny deterministic pseudo-detection by character ranges
 function detectLanguage(text: string): string {
