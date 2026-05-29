@@ -77,6 +77,42 @@ export type Database = {
         }
         Relationships: []
       }
+      coin_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["coin_tx_kind"]
+          reason: string
+          ref_id: string | null
+          ref_type: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["coin_tx_kind"]
+          reason: string
+          ref_id?: string | null
+          ref_type?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["coin_tx_kind"]
+          reason?: string
+          ref_id?: string | null
+          ref_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       companion_messages: {
         Row: {
           content: string
@@ -121,6 +157,115 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      companion_skins: {
+        Row: {
+          available: boolean
+          character: string
+          code: string
+          created_at: string
+          description: string | null
+          emoji: string
+          featured: boolean
+          gradient: string
+          id: string
+          limited: boolean
+          name: string
+          price_coins: number
+          rarity: Database["public"]["Enums"]["skin_rarity"]
+        }
+        Insert: {
+          available?: boolean
+          character: string
+          code: string
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          featured?: boolean
+          gradient?: string
+          id?: string
+          limited?: boolean
+          name: string
+          price_coins?: number
+          rarity?: Database["public"]["Enums"]["skin_rarity"]
+        }
+        Update: {
+          available?: boolean
+          character?: string
+          code?: string
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          featured?: boolean
+          gradient?: string
+          id?: string
+          limited?: boolean
+          name?: string
+          price_coins?: number
+          rarity?: Database["public"]["Enums"]["skin_rarity"]
+        }
+        Relationships: []
+      }
+      equipped_skins: {
+        Row: {
+          character: string
+          equipped_at: string
+          skin_id: string
+          user_id: string
+        }
+        Insert: {
+          character: string
+          equipped_at?: string
+          skin_id: string
+          user_id: string
+        }
+        Update: {
+          character?: string
+          equipped_at?: string
+          skin_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipped_skins_skin_id_fkey"
+            columns: ["skin_id"]
+            isOneToOne: false
+            referencedRelation: "companion_skins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      owned_skins: {
+        Row: {
+          acquired_at: string
+          id: string
+          price_paid: number
+          skin_id: string
+          user_id: string
+        }
+        Insert: {
+          acquired_at?: string
+          id?: string
+          price_paid?: number
+          skin_id: string
+          user_id: string
+        }
+        Update: {
+          acquired_at?: string
+          id?: string
+          price_paid?: number
+          skin_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "owned_skins_skin_id_fkey"
+            columns: ["skin_id"]
+            isOneToOne: false
+            referencedRelation: "companion_skins"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -306,10 +451,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      purchase_skin: { Args: { _skin_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user"
+      coin_tx_kind: "earn" | "spend" | "refund" | "bonus"
       payment_status: "unpaid" | "pending" | "paid" | "refunded" | "failed"
+      skin_rarity: "common" | "rare" | "epic" | "legendary"
       subscription_plan: "free" | "pro" | "business"
       subscription_status: "active" | "expired" | "pending" | "cancelled"
     }
@@ -440,7 +588,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      coin_tx_kind: ["earn", "spend", "refund", "bonus"],
       payment_status: ["unpaid", "pending", "paid", "refunded", "failed"],
+      skin_rarity: ["common", "rare", "epic", "legendary"],
       subscription_plan: ["free", "pro", "business"],
       subscription_status: ["active", "expired", "pending", "cancelled"],
     },

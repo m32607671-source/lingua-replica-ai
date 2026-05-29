@@ -45,22 +45,26 @@ export function CompanionWidget() {
   const loadState = useServerFn(getCompanionState);
   const saveChar = useServerFn(setCompanionCharacter);
 
+  // Initial load + refresh whenever the active plan changes (so upgrades unlock instantly)
   useEffect(() => {
     if (!user) return;
     loadState().then((s) => {
       setCharacter((s.character as Character) ?? "owl");
       setUsed(s.used);
       setLimit(s.limit);
-      setMessages((s.history ?? []) as Msg[]);
-      if ((s.history ?? []).length === 0) {
-        setMessages([{
+      setMessages((prev) => {
+        const history = (s.history ?? []) as Msg[];
+        if (history.length > 0) return history;
+        if (prev.length > 0) return prev;
+        setHasUnread(true);
+        return [{
           role: "assistant",
           content: `Hi! I'm your AI companion. Ask me anything about translations, learning, or the platform. You have ${s.limit === -1 ? "unlimited" : s.limit - s.used} messages today.`,
-        }]);
-        setHasUnread(true);
-      }
+        }];
+      });
     }).catch(() => {});
-  }, [user, loadState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, activePlan]);
 
   useEffect(() => {
     if (open) {
@@ -74,8 +78,15 @@ export function CompanionWidget() {
   if (!user) return null;
 
   const current = CHARACTERS.find((c) => c.id === character)!;
-  const remaining = limit === -1 ? "∞" : Math.max(0, limit - used);
-  const limitReached = limit !== -1 && used >= limit;
+  const isUnlimited = limit === -1;
+  const remaining = isUnlimited ? "∞" : Math.max(0, limit - used);
+  const limitReached = !isUnlimited && used >= limit;
+  const planColor =
+    activePlan === "business"
+      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0"
+      : activePlan === "pro"
+      ? "bg-gradient-to-r from-primary to-primary/70 text-primary-foreground border-0"
+      : "bg-muted text-muted-foreground";
 
   const handleSend = async () => {
     const text = input.trim();
@@ -140,9 +151,12 @@ export function CompanionWidget() {
                 <div className="text-xs text-muted-foreground">{current.tag}</div>
               </div>
             </button>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <Badge className={cn("text-[10px] uppercase tracking-wide px-1.5 py-0.5", planColor)}>
+                {activePlan}
+              </Badge>
               <Badge variant="secondary" className="text-xs">
-                {remaining}/{limit === -1 ? "∞" : limit}
+                {isUnlimited ? "∞" : `${remaining}/${limit}`}
               </Badge>
               <Button variant="ghost" size="icon" onClick={() => setOpen(false)} aria-label="Close">
                 <X className="h-4 w-4" />

@@ -327,56 +327,66 @@ function ManageDialog({ row, onClose, onSaved }: { row: Row; onClose: () => void
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Manage subscription</DialogTitle>
-          <div className="text-sm text-muted-foreground">{row.full_name || row.email}</div>
+      <DialogContent
+        className="w-[calc(100vw-1rem)] sm:w-full sm:max-w-lg max-h-[92vh] p-0 overflow-hidden gap-0 rounded-2xl"
+      >
+        <DialogHeader className="px-4 sm:px-6 pt-5 pb-3 border-b">
+          <DialogTitle className="text-base sm:text-lg">Manage subscription</DialogTitle>
+          <div className="text-xs sm:text-sm text-muted-foreground truncate">
+            {row.full_name || row.email}
+          </div>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={upgrade} disabled={plan === "business"}>
-              <ArrowUp className="w-3.5 h-3.5" /> Upgrade
+        <div className="overflow-y-auto overscroll-contain px-4 sm:px-6 py-4 space-y-4 max-h-[calc(92vh-9.5rem)]">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <Button size="sm" variant="outline" className="h-10 sm:h-9 justify-center gap-1.5 px-2 text-xs sm:text-sm" onClick={upgrade} disabled={plan === "business"}>
+              <ArrowUp className="w-3.5 h-3.5 shrink-0" /> Upgrade
             </Button>
-            <Button size="sm" variant="outline" onClick={downgrade} disabled={plan === "free"}>
-              <ArrowDown className="w-3.5 h-3.5" /> Downgrade
+            <Button size="sm" variant="outline" className="h-10 sm:h-9 justify-center gap-1.5 px-2 text-xs sm:text-sm" onClick={downgrade} disabled={plan === "free"}>
+              <ArrowDown className="w-3.5 h-3.5 shrink-0" /> Downgrade
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setStatus("active")}>
-              <Power className="w-3.5 h-3.5" /> Activate
+            <Button size="sm" variant="outline" className="h-10 sm:h-9 justify-center gap-1.5 px-2 text-xs sm:text-sm" onClick={() => setStatus("active")}>
+              <Power className="w-3.5 h-3.5 shrink-0" /> Activate
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setStatus("cancelled")}>
-              <PowerOff className="w-3.5 h-3.5" /> Deactivate
+            <Button size="sm" variant="outline" className="h-10 sm:h-9 justify-center gap-1.5 px-2 text-xs sm:text-sm" onClick={() => setStatus("cancelled")}>
+              <PowerOff className="w-3.5 h-3.5 shrink-0" /> Deactivate
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Plan">
               <Select value={plan} onValueChange={(v) => setPlan(v as Plan)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-10 sm:h-9"><SelectValue /></SelectTrigger>
                 <SelectContent>{PLANS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
             <Field label="Status">
               <Select value={status} onValueChange={(v) => setStatus(v as SubStatus)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-10 sm:h-9"><SelectValue /></SelectTrigger>
                 <SelectContent>{STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
             <Field label="Payment status">
               <Select value={paymentStatus} onValueChange={(v) => setPaymentStatus(v as PayStatus)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-10 sm:h-9"><SelectValue /></SelectTrigger>
                 <SelectContent>{PAY_STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
             <Field label="End date">
-              <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              <Input type="date" className="h-10 sm:h-9" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
             </Field>
           </div>
 
-          <div className="flex gap-2">
-            <Button size="sm" variant="ghost" onClick={() => extend(30)}><Calendar className="w-3.5 h-3.5" /> +30d</Button>
-            <Button size="sm" variant="ghost" onClick={() => extend(90)}><Calendar className="w-3.5 h-3.5" /> +90d</Button>
-            <Button size="sm" variant="ghost" onClick={() => extend(365)}><Calendar className="w-3.5 h-3.5" /> +1y</Button>
+          <div className="grid grid-cols-3 gap-2">
+            <Button size="sm" variant="secondary" className="h-10 sm:h-9 gap-1.5 px-2 text-xs sm:text-sm" onClick={() => extend(30)}>
+              <Calendar className="w-3.5 h-3.5 shrink-0" /> +30d
+            </Button>
+            <Button size="sm" variant="secondary" className="h-10 sm:h-9 gap-1.5 px-2 text-xs sm:text-sm" onClick={() => extend(90)}>
+              <Calendar className="w-3.5 h-3.5 shrink-0" /> +90d
+            </Button>
+            <Button size="sm" variant="secondary" className="h-10 sm:h-9 gap-1.5 px-2 text-xs sm:text-sm" onClick={() => extend(365)}>
+              <Calendar className="w-3.5 h-3.5 shrink-0" /> +1y
+            </Button>
           </div>
 
           <Field label="Payment notes">
@@ -384,9 +394,9 @@ function ManageDialog({ row, onClose, onSaved }: { row: Row; onClose: () => void
           </Field>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => void save()} disabled={saving}>
+        <DialogFooter className="px-4 sm:px-6 py-3 border-t bg-background flex-row gap-2 sm:gap-2">
+          <Button variant="outline" className="flex-1 sm:flex-none h-10" onClick={onClose}>Cancel</Button>
+          <Button className="flex-1 sm:flex-none h-10" onClick={() => void save()} disabled={saving}>
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
           </Button>
         </DialogFooter>

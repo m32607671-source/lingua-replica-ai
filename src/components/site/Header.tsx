@@ -17,6 +17,7 @@ export function Header() {
     { to: "/", label: t("nav.home") },
     { to: "/translate", label: t("nav.translate") },
     { to: "/pricing", label: t("nav.pricing") },
+    { to: "/store", label: "Store" },
     { to: "/dashboard", label: t("nav.dashboard") },
     ...(isAdmin ? [{ to: "/admin", label: "Admin" } as const] : []),
   ] as const;
