@@ -78,8 +78,15 @@ export function CompanionWidget() {
   if (!user) return null;
 
   const current = CHARACTERS.find((c) => c.id === character)!;
-  const remaining = limit === -1 ? "∞" : Math.max(0, limit - used);
-  const limitReached = limit !== -1 && used >= limit;
+  const isUnlimited = limit === -1;
+  const remaining = isUnlimited ? "∞" : Math.max(0, limit - used);
+  const limitReached = !isUnlimited && used >= limit;
+  const planColor =
+    activePlan === "business"
+      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0"
+      : activePlan === "pro"
+      ? "bg-gradient-to-r from-primary to-primary/70 text-primary-foreground border-0"
+      : "bg-muted text-muted-foreground";
 
   const handleSend = async () => {
     const text = input.trim();
