@@ -151,9 +151,12 @@ export function CompanionWidget() {
                 <div className="text-xs text-muted-foreground">{current.tag}</div>
               </div>
             </button>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <Badge className={cn("text-[10px] uppercase tracking-wide px-1.5 py-0.5", planColor)}>
+                {activePlan}
+              </Badge>
               <Badge variant="secondary" className="text-xs">
-                {remaining}/{limit === -1 ? "∞" : limit}
+                {isUnlimited ? "∞" : `${remaining}/${limit}`}
               </Badge>
               <Button variant="ghost" size="icon" onClick={() => setOpen(false)} aria-label="Close">
                 <X className="h-4 w-4" />
