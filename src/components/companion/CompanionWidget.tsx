@@ -45,22 +45,26 @@ export function CompanionWidget() {
   const loadState = useServerFn(getCompanionState);
   const saveChar = useServerFn(setCompanionCharacter);
 
+  // Initial load + refresh whenever the active plan changes (so upgrades unlock instantly)
   useEffect(() => {
     if (!user) return;
     loadState().then((s) => {
       setCharacter((s.character as Character) ?? "owl");
       setUsed(s.used);
       setLimit(s.limit);
-      setMessages((s.history ?? []) as Msg[]);
-      if ((s.history ?? []).length === 0) {
-        setMessages([{
+      setMessages((prev) => {
+        const history = (s.history ?? []) as Msg[];
+        if (history.length > 0) return history;
+        if (prev.length > 0) return prev;
+        setHasUnread(true);
+        return [{
           role: "assistant",
           content: `Hi! I'm your AI companion. Ask me anything about translations, learning, or the platform. You have ${s.limit === -1 ? "unlimited" : s.limit - s.used} messages today.`,
-        }]);
-        setHasUnread(true);
-      }
+        }];
+      });
     }).catch(() => {});
-  }, [user, loadState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, activePlan]);
 
   useEffect(() => {
     if (open) {
