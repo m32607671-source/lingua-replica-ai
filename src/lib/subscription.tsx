@@ -96,15 +96,17 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     ]);
 
     if (subsError || accessRes.error) {
-      void supabase.from("subscription_access_events").insert({
-        user_id: user.id,
-        event_type: "subscription_sync_failure",
-        plan: "free",
-        details: {
+      void (supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<unknown>)(
+        "track_subscription_access_event",
+        {
+          _event_type: "subscription_sync_failure",
+          _plan: "free",
+          _details: {
           subscriptions_error: subsError?.message ?? null,
           access_error: accessRes.error?.message ?? null,
+          },
         },
-      });
+      );
     }
 
     const rows = (data ?? []) as Subscription[];
