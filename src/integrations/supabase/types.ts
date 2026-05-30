@@ -324,6 +324,33 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_access_events: {
+        Row: {
+          created_at: string
+          details: Json
+          event_type: string
+          id: string
+          plan: Database["public"]["Enums"]["subscription_plan"] | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          event_type: string
+          id?: string
+          plan?: Database["public"]["Enums"]["subscription_plan"] | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          event_type?: string
+          id?: string
+          plan?: Database["public"]["Enums"]["subscription_plan"] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string
@@ -437,6 +464,7 @@ export type Database = {
           user_created_at: string
         }[]
       }
+      get_my_subscription_access: { Args: never; Returns: Json }
       has_plan_at_least: {
         Args: {
           _min_plan: Database["public"]["Enums"]["subscription_plan"]
@@ -452,6 +480,14 @@ export type Database = {
         Returns: boolean
       }
       purchase_skin: { Args: { _skin_id: string }; Returns: Json }
+      track_subscription_access_event: {
+        Args: {
+          _details?: Json
+          _event_type: string
+          _plan: Database["public"]["Enums"]["subscription_plan"]
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"

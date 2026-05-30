@@ -18,15 +18,27 @@ export const translateText = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // Determine active plan
-    const { data: planRow } = await supabase.rpc("get_active_plan", { _user_id: userId });
-    const plan = (planRow as string) || "free";
+    // Determine real-time subscription access from the database source of truth.
+    const { data: accessRow } = await (
+      supabase.rpc as unknown as (
+        fn: string,
+      ) => Promise<{ data: { current_plan?: string; unlimited_languages?: boolean } | null }>
+    )("get_my_subscription_access");
+    const plan = accessRow?.current_plan || "free";
+    const unlimitedLanguages = accessRow?.unlimited_languages ?? plan !== "free";
 
     // Free-plan language gate (backend enforcement).
-    if (plan === "free") {
+    if (!unlimitedLanguages) {
       const target = data.to.toLowerCase();
       const source = data.from === "auto" ? null : data.from.toLowerCase();
       if (!FREE_CODES.has(target) || (source && !FREE_CODES.has(source))) {
+        await (
+          supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<unknown>
+        )("track_subscription_access_event", {
+          _event_type: "language_access_block",
+          _plan: plan,
+          _details: { from: data.from, to: data.to },
+        });
         return {
           translation: "",
           error: "This language requires Pro or Business. Please upgrade to unlock 100+ languages.",
@@ -68,7 +80,10 @@ export const translateText = createServerFn({ method: "POST" })
         return { translation: "", error: "Rate limit reached. Please try again shortly." };
       }
       if (res.status === 402) {
-        return { translation: "", error: "AI credits exhausted. Please add credits in Lovable settings." };
+        return {
+          translation: "",
+          error: "AI credits exhausted. Please add credits in Lovable settings.",
+        };
       }
       const detail = await res.text().catch(() => "");
       console.error("Translation API error", res.status, detail);
