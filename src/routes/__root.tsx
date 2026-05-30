@@ -128,8 +128,10 @@ function RootComponent() {
       <AppProvider>
         <AuthProvider>
           <SubscriptionProvider>
-            <Outlet />
-            <Toaster />
+            <SubscriptionSyncInvalidator>
+              <Outlet />
+              <Toaster />
+            </SubscriptionSyncInvalidator>
           </SubscriptionProvider>
         </AuthProvider>
       </AppProvider>
