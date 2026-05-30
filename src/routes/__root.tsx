@@ -1,4 +1,5 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import {
   Outlet,
   Link,
@@ -13,6 +14,7 @@ import { AppProvider } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth";
 import { SubscriptionProvider } from "@/lib/subscription";
 import { Toaster } from "@/components/ui/sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
@@ -133,4 +135,19 @@ function RootComponent() {
       </AppProvider>
     </QueryClientProvider>
   );
+}
+
+function SubscriptionSyncInvalidator({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      void router.invalidate();
+      void queryClient.invalidateQueries();
+    });
+    return () => subscription.unsubscribe();
+  }, [queryClient, router]);
+
+  return <>{children}</>;
 }
