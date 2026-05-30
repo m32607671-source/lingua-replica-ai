@@ -29,16 +29,20 @@ export const sendCompanionMessage = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // Determine plan
-    const { data: planRow } = await supabase.rpc("get_active_plan", { _user_id: userId });
-    const plan = (planRow as string) || "free";
-    const limit = PLAN_LIMITS[plan] ?? 5;
+    // Determine real-time subscription access from the database source of truth.
+    const { data: accessRow } = await (supabase.rpc as unknown as (fn: string) => Promise<{ data: { current_plan?: string; ai_limit?: number; ai_used_today?: number } | null }>)
+      ("get_my_subscription_access");
+    const plan = accessRow?.current_plan || "free";
+    const limit = accessRow?.ai_limit ?? PLAN_LIMITS[plan] ?? 5;
 
     // Daily quota
     if (limit !== -1) {
-      const { data: usedRow } = await supabase.rpc("companion_daily_used", { _user_id: userId });
-      const used = (usedRow as number) ?? 0;
+      const used = accessRow?.ai_used_today ?? 0;
       if (used >= limit) {
+        await (supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<unknown>)(
+          "track_subscription_access_event",
+          { _event_type: "ai_limit_block", _plan: plan, _details: { used, limit, character: data.character } },
+        );
         return {
           ok: false as const,
           error: "limit_reached",
@@ -136,19 +140,19 @@ export const getCompanionState = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const [{ data: prefs }, { data: planRow }, { data: usedRow }, { data: msgs }] = await Promise.all([
+    const [{ data: prefs }, accessRes, { data: msgs }] = await Promise.all([
       supabase.from("companion_prefs").select("character").eq("user_id", userId).maybeSingle(),
-      supabase.rpc("get_active_plan", { _user_id: userId }),
-      supabase.rpc("companion_daily_used", { _user_id: userId }),
+      (supabase.rpc as unknown as (fn: string) => Promise<{ data: { current_plan?: string; ai_limit?: number; ai_used_today?: number } | null }>)
+        ("get_my_subscription_access"),
       supabase.from("companion_messages").select("role, content, created_at")
         .eq("user_id", userId).order("created_at", { ascending: false }).limit(20),
     ]);
-    const plan = (planRow as string) || "free";
+    const plan = accessRes.data?.current_plan || "free";
     return {
       character: prefs?.character ?? "owl",
       plan,
-      limit: PLAN_LIMITS[plan] ?? 5,
-      used: (usedRow as number) ?? 0,
+      limit: accessRes.data?.ai_limit ?? PLAN_LIMITS[plan] ?? 5,
+      used: accessRes.data?.ai_used_today ?? 0,
       history: (msgs ?? []).reverse(),
     };
   });
