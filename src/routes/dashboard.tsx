@@ -6,6 +6,7 @@ import { useApp } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { useSubscription } from "@/lib/subscription";
 import { Button } from "@/components/ui/button";
+import { SubscriptionDiagnosticsPanel } from "@/components/subscription/SubscriptionDiagnosticsPanel";
 import { TrendingUp, Languages as LangIcon, Star, FileText, Crown, ArrowRight, CheckCircle2, Clock, XCircle, AlertCircle } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
@@ -75,6 +76,10 @@ function DashboardPage() {
                 </div>
               );
             })}
+          </div>
+
+          <div className="mb-8">
+            <SubscriptionDiagnosticsPanel />
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6">
