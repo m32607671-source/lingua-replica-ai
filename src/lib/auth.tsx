@@ -52,10 +52,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-      if (s?.user) void loadProfile(s.user.id);
+    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
+      const { data: verified } = await supabase.auth.getUser();
+      const verifiedUser = verified.user ?? null;
+      setSession(verifiedUser ? s : null);
+      setUser(verifiedUser);
+      if (verifiedUser) void loadProfile(verifiedUser.id);
       setLoading(false);
     });
 
