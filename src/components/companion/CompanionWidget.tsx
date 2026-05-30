@@ -29,7 +29,7 @@ interface Msg { role: "user" | "assistant" | "system"; content: string }
 
 export function CompanionWidget() {
   const { user } = useAuth();
-  const { activePlan } = useSubscription();
+  const { activePlan, loading: planLoading, refresh: refreshSubscription, trackEvent } = useSubscription();
   const [open, setOpen] = useState(false);
   const [character, setCharacter] = useState<Character>("owl");
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -78,9 +78,10 @@ export function CompanionWidget() {
   if (!user) return null;
 
   const current = CHARACTERS.find((c) => c.id === character)!;
-  const isUnlimited = limit === -1;
+  const displayedLimit = activePlan === "business" ? -1 : activePlan === "pro" ? Math.max(limit, 100) : limit;
+  const isUnlimited = displayedLimit === -1;
   const remaining = isUnlimited ? "∞" : Math.max(0, limit - used);
-  const limitReached = !isUnlimited && used >= limit;
+  const limitReached = !planLoading && !isUnlimited && used >= displayedLimit;
   const planColor =
     activePlan === "business"
       ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0"
@@ -99,10 +100,12 @@ export function CompanionWidget() {
       if (res.ok) {
         setMessages((m) => [...m, { role: "assistant", content: res.reply }]);
         setUsed((u) => u + 1);
+        if (res.plan && res.plan !== activePlan) void refreshSubscription();
       } else {
         setMessages((m) => [...m, { role: "assistant", content: res.message }]);
         if (res.error === "limit_reached") {
-          setUsed(limit);
+          trackEvent("incorrect_upgrade_prompt", { source: "companion", plan: activePlan, serverPlan: res.plan, limit: res.limit });
+          setUsed(displayedLimit);
         }
       }
     } catch {
@@ -156,7 +159,7 @@ export function CompanionWidget() {
                 {activePlan}
               </Badge>
               <Badge variant="secondary" className="text-xs">
-                {isUnlimited ? "∞" : `${remaining}/${limit}`}
+                {planLoading ? "…" : isUnlimited ? "∞" : `${remaining}/${displayedLimit}`}
               </Badge>
               <Button variant="ghost" size="icon" onClick={() => setOpen(false)} aria-label="Close">
                 <X className="h-4 w-4" />
