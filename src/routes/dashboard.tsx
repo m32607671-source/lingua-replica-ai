@@ -7,12 +7,26 @@ import { useAuth } from "@/lib/auth";
 import { useSubscription } from "@/lib/subscription";
 import { Button } from "@/components/ui/button";
 import { SubscriptionDiagnosticsPanel } from "@/components/subscription/SubscriptionDiagnosticsPanel";
-import { TrendingUp, Languages as LangIcon, Star, FileText, Crown, ArrowRight, CheckCircle2, Clock, XCircle, AlertCircle } from "lucide-react";
+import {
+  TrendingUp,
+  Languages as LangIcon,
+  Star,
+  FileText,
+  Crown,
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  AlertCircle,
+} from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
   head: () => ({
-    meta: [{ title: "Dashboard — Lingua AI" }, { name: "description", content: "Your Lingua AI dashboard." }],
+    meta: [
+      { title: "Dashboard — Lingua AI" },
+      { name: "description", content: "Your Lingua AI dashboard." },
+    ],
     links: [{ rel: "canonical", href: "/dashboard" }],
   }),
 });
@@ -28,18 +42,35 @@ function DashboardPage() {
   }, [loading, user, navigate]);
 
   if (loading || !user) {
-    return <SiteLayout><div className="py-24 text-center text-muted-foreground">Loading…</div></SiteLayout>;
+    return (
+      <SiteLayout>
+        <div className="py-24 text-center text-muted-foreground">Loading…</div>
+      </SiteLayout>
+    );
   }
 
   const displayName = profile?.full_name || user.email?.split("@")[0] || "there";
   const stats = [
-    { label: t("dash.stats.translations"), value: (profile?.translations_count ?? 0).toLocaleString(), icon: TrendingUp },
-    { label: t("dash.stats.words"), value: (profile?.words_count ?? 0).toLocaleString(), icon: FileText },
+    {
+      label: t("dash.stats.translations"),
+      value: (profile?.translations_count ?? 0).toLocaleString(),
+      icon: TrendingUp,
+    },
+    {
+      label: t("dash.stats.words"),
+      value: (profile?.words_count ?? 0).toLocaleString(),
+      icon: FileText,
+    },
     { label: t("dash.stats.languages"), value: "—", icon: LangIcon },
     { label: "Plan", value: activePlan, icon: Star },
   ];
   const recent = [
-    { from: "English", to: "العربية", text: "Welcome to the future of translation.", time: "2m ago" },
+    {
+      from: "English",
+      to: "العربية",
+      text: "Welcome to the future of translation.",
+      time: "2m ago",
+    },
     { from: "Español", to: "English", text: "Hola, ¿cómo estás hoy?", time: "1h ago" },
     { from: "Français", to: "Deutsch", text: "Le monde change rapidement.", time: "3h ago" },
     { from: "日本語", to: "English", text: "おはようございます", time: "Yesterday" },
@@ -51,8 +82,12 @@ function DashboardPage() {
         <div className="container mx-auto max-w-6xl">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{t("dash.welcome")}, {displayName} 👋</h1>
-              <p className="text-muted-foreground mt-1">Here's what's happening with your account.</p>
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+                {t("dash.welcome")}, {displayName} 👋
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Here's what's happening with your account.
+              </p>
             </div>
             <Link to="/translate">
               <Button className="bg-gradient-primary text-white shadow-glow">
@@ -89,7 +124,9 @@ function DashboardPage() {
                 {recent.map((r, i) => (
                   <div key={i} className="p-4 rounded-xl bg-background/40 border border-border/50">
                     <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-                      <span className="font-medium">{r.from} → {r.to}</span>
+                      <span className="font-medium">
+                        {r.from} → {r.to}
+                      </span>
                       <span>{r.time}</span>
                     </div>
                     <p className="text-sm">{r.text}</p>
@@ -124,7 +161,13 @@ function SubscriptionCard({
 
   const planLabel = activePlan.charAt(0).toUpperCase() + activePlan.slice(1);
   const fmt = (d: string | null | undefined) =>
-    d ? new Date(d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "—";
+    d
+      ? new Date(d).toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+      : "—";
 
   return (
     <div className="glass rounded-3xl p-6 bg-gradient-soft border-2 border-primary/30">
@@ -156,13 +199,17 @@ function SubscriptionCard({
           <span>{fmt(subscription?.end_date)}</span>
         </div>
         {subscription?.notes && (
-          <p className="text-xs text-muted-foreground pt-2 border-t border-border/40">{subscription.notes}</p>
+          <p className="text-xs text-muted-foreground pt-2 border-t border-border/40">
+            {subscription.notes}
+          </p>
         )}
       </div>
 
       {activePlan !== "business" && (
         <Link to="/pricing" className="block mt-5">
-          <Button className="w-full bg-gradient-primary text-white shadow-glow">Upgrade plan</Button>
+          <Button className="w-full bg-gradient-primary text-white shadow-glow">
+            Upgrade plan
+          </Button>
         </Link>
       )}
     </div>

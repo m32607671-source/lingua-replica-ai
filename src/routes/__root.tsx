@@ -79,10 +79,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Lingua AI — AI-powered translation for 100+ languages" },
-      { name: "description", content: "Lingua AI is the world's most advanced AI translation platform. 100+ languages, native-level fluency, real-time speed." },
+      {
+        name: "description",
+        content:
+          "Lingua AI is the world's most advanced AI translation platform. 100+ languages, native-level fluency, real-time speed.",
+      },
       { name: "author", content: "Lingua AI" },
       { property: "og:title", content: "Lingua AI — AI-powered translation" },
-      { property: "og:description", content: "Translate anything into anything. 100+ languages with native-level AI fluency." },
+      {
+        property: "og:description",
+        content: "Translate anything into anything. 100+ languages with native-level AI fluency.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@LinguaAI" },
@@ -144,7 +151,9 @@ function SubscriptionSyncInvalidator({ children }: { children: React.ReactNode }
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
       void router.invalidate();
       void queryClient.invalidateQueries();
     });

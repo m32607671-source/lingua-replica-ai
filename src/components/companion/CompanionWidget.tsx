@@ -25,11 +25,19 @@ const CHARACTERS: { id: Character; emoji: string; name: string; tag: string }[] 
   { id: "panda", emoji: "🐼", name: "Panda Buddy", tag: "Encouraging" },
 ];
 
-interface Msg { role: "user" | "assistant" | "system"; content: string }
+interface Msg {
+  role: "user" | "assistant" | "system";
+  content: string;
+}
 
 export function CompanionWidget() {
   const { user } = useAuth();
-  const { activePlan, loading: planLoading, refresh: refreshSubscription, trackEvent } = useSubscription();
+  const {
+    activePlan,
+    loading: planLoading,
+    refresh: refreshSubscription,
+    trackEvent,
+  } = useSubscription();
   const [open, setOpen] = useState(false);
   const [character, setCharacter] = useState<Character>("owl");
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -48,21 +56,25 @@ export function CompanionWidget() {
   // Initial load + refresh whenever the active plan changes (so upgrades unlock instantly)
   useEffect(() => {
     if (!user) return;
-    loadState().then((s) => {
-      setCharacter((s.character as Character) ?? "owl");
-      setUsed(s.used);
-      setLimit(s.limit);
-      setMessages((prev) => {
-        const history = (s.history ?? []) as Msg[];
-        if (history.length > 0) return history;
-        if (prev.length > 0) return prev;
-        setHasUnread(true);
-        return [{
-          role: "assistant",
-          content: `Hi! I'm your AI companion. Ask me anything about translations, learning, or the platform. You have ${s.limit === -1 ? "unlimited" : s.limit - s.used} messages today.`,
-        }];
-      });
-    }).catch(() => {});
+    loadState()
+      .then((s) => {
+        setCharacter((s.character as Character) ?? "owl");
+        setUsed(s.used);
+        setLimit(s.limit);
+        setMessages((prev) => {
+          const history = (s.history ?? []) as Msg[];
+          if (history.length > 0) return history;
+          if (prev.length > 0) return prev;
+          setHasUnread(true);
+          return [
+            {
+              role: "assistant",
+              content: `Hi! I'm your AI companion. Ask me anything about translations, learning, or the platform. You have ${s.limit === -1 ? "unlimited" : s.limit - s.used} messages today.`,
+            },
+          ];
+        });
+      })
+      .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, activePlan]);
 
@@ -78,7 +90,8 @@ export function CompanionWidget() {
   if (!user) return null;
 
   const current = CHARACTERS.find((c) => c.id === character)!;
-  const displayedLimit = activePlan === "business" ? -1 : activePlan === "pro" ? Math.max(limit, 100) : limit;
+  const displayedLimit =
+    activePlan === "business" ? -1 : activePlan === "pro" ? Math.max(limit, 100) : limit;
   const isUnlimited = displayedLimit === -1;
   const remaining = isUnlimited ? "∞" : Math.max(0, displayedLimit - used);
   const limitReached = !planLoading && !isUnlimited && used >= displayedLimit;
@@ -86,8 +99,8 @@ export function CompanionWidget() {
     activePlan === "business"
       ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0"
       : activePlan === "pro"
-      ? "bg-gradient-to-r from-primary to-primary/70 text-primary-foreground border-0"
-      : "bg-muted text-muted-foreground";
+        ? "bg-gradient-to-r from-primary to-primary/70 text-primary-foreground border-0"
+        : "bg-muted text-muted-foreground";
 
   const handleSend = async () => {
     const text = input.trim();
@@ -104,12 +117,20 @@ export function CompanionWidget() {
       } else {
         setMessages((m) => [...m, { role: "assistant", content: res.message }]);
         if (res.error === "limit_reached") {
-          trackEvent("incorrect_upgrade_prompt", { source: "companion", plan: activePlan, serverPlan: res.plan, limit: res.limit });
+          trackEvent("incorrect_upgrade_prompt", {
+            source: "companion",
+            plan: activePlan,
+            serverPlan: res.plan,
+            limit: res.limit,
+          });
           setUsed(displayedLimit);
         }
       }
     } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "Connection error. Please try again." }]);
+      setMessages((m) => [
+        ...m,
+        { role: "assistant", content: "Connection error. Please try again." },
+      ]);
     } finally {
       setSending(false);
     }
@@ -118,7 +139,9 @@ export function CompanionWidget() {
   const pickCharacter = async (id: Character) => {
     setCharacter(id);
     setShowPicker(false);
-    try { await saveChar({ data: { character: id } }); } catch {}
+    try {
+      await saveChar({ data: { character: id } });
+    } catch {}
   };
 
   return (
@@ -193,7 +216,10 @@ export function CompanionWidget() {
           <ScrollArea className="flex-1" ref={scrollRef as never}>
             <div className="p-3 space-y-3">
               {messages.map((m, i) => (
-                <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
+                <div
+                  key={i}
+                  className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}
+                >
                   <div
                     className={cn(
                       "max-w-[85%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap break-words animate-fade-in",
@@ -222,7 +248,9 @@ export function CompanionWidget() {
               <Crown className="h-4 w-4 text-amber-500" />
               <span className="flex-1">Daily limit reached.</span>
               <Link to="/pricing">
-                <Button size="sm" className="h-7 text-xs">Upgrade</Button>
+                <Button size="sm" className="h-7 text-xs">
+                  Upgrade
+                </Button>
               </Link>
             </div>
           )}
@@ -232,7 +260,12 @@ export function CompanionWidget() {
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
               placeholder={limitReached ? "Upgrade to keep chatting…" : "Ask your companion…"}
               disabled={sending || limitReached}
               className="flex-1"
@@ -243,11 +276,16 @@ export function CompanionWidget() {
               size="icon"
               className="shrink-0"
             >
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              {sending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </Button>
           </div>
           <div className="px-3 pb-2 text-[10px] text-muted-foreground flex items-center gap-1">
-            <Sparkles className="h-3 w-3" /> Plan: <strong className="capitalize">{activePlan}</strong>
+            <Sparkles className="h-3 w-3" /> Plan:{" "}
+            <strong className="capitalize">{activePlan}</strong>
           </div>
         </Card>
       )}

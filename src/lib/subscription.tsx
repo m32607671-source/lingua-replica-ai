@@ -1,4 +1,12 @@
-import { createContext, useContext, useEffect, useState, useCallback, useMemo, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  type ReactNode,
+} from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 
@@ -91,22 +99,27 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false }),
-      (supabase.rpc as unknown as (fn: string) => Promise<{ data: SubscriptionAccessDiagnostics | null; error: { message?: string } | null }>)
-        ("get_my_subscription_access"),
+      (
+        supabase.rpc as unknown as (
+          fn: string,
+        ) => Promise<{
+          data: SubscriptionAccessDiagnostics | null;
+          error: { message?: string } | null;
+        }>
+      )("get_my_subscription_access"),
     ]);
 
     if (subsError || accessRes.error) {
-      void (supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<unknown>)(
-        "track_subscription_access_event",
-        {
-          _event_type: "subscription_sync_failure",
-          _plan: "free",
-          _details: {
+      void (
+        supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<unknown>
+      )("track_subscription_access_event", {
+        _event_type: "subscription_sync_failure",
+        _plan: "free",
+        _details: {
           subscriptions_error: subsError?.message ?? null,
           access_error: accessRes.error?.message ?? null,
-          },
         },
-      );
+      });
     }
 
     const rows = (data ?? []) as Subscription[];
@@ -126,7 +139,9 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, [user]);
 
-  useEffect(() => { void load(); }, [load, session?.access_token]);
+  useEffect(() => {
+    void load();
+  }, [load, session?.access_token]);
 
   useEffect(() => {
     if (!user) return;
@@ -135,10 +150,14 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${user.id}` },
-        () => { void load(); },
+        () => {
+          void load();
+        },
       )
       .subscribe();
-    const onFocus = () => { void load(); };
+    const onFocus = () => {
+      void load();
+    };
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onFocus);
     return () => {
@@ -148,21 +167,28 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     };
   }, [user, load]);
 
-  const activePlan: PlanName = diagnostics?.current_plan ?? (
-    subscription && subscription.status === "active" &&
+  const activePlan: PlanName =
+    diagnostics?.current_plan ??
+    (subscription &&
+    subscription.status === "active" &&
     (!subscription.end_date || new Date(subscription.end_date).getTime() > Date.now())
       ? subscription.plan
-      : "free"
-  );
+      : "free");
 
   const hasPlanAtLeast = (min: PlanName) => PLAN_RANK[activePlan] >= PLAN_RANK[min];
-  const trackEvent = useCallback((eventType: string, details: Record<string, unknown> = {}) => {
-    if (!user) return;
-    void (supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<unknown>)(
-      "track_subscription_access_event",
-      { _event_type: eventType, _plan: activePlan, _details: details },
-    );
-  }, [activePlan, user]);
+  const trackEvent = useCallback(
+    (eventType: string, details: Record<string, unknown> = {}) => {
+      if (!user) return;
+      void (
+        supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<unknown>
+      )("track_subscription_access_event", {
+        _event_type: eventType,
+        _plan: activePlan,
+        _details: details,
+      });
+    },
+    [activePlan, user],
+  );
 
   useEffect(() => {
     if (!diagnostics || !user) return;
@@ -176,30 +202,33 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     }
   }, [diagnostics, trackEvent, user]);
 
-  const value = useMemo<Ctx>(() => ({
-    subscription,
-    activePlan,
-    diagnostics,
-    aiLimit: diagnostics?.ai_limit ?? PLAN_AI_LIMITS[activePlan],
-    aiUsedToday: diagnostics?.ai_used_today ?? 0,
-    aiRemaining: diagnostics?.ai_remaining ?? (PLAN_AI_LIMITS[activePlan] === -1 ? -1 : PLAN_AI_LIMITS[activePlan]),
-    allowedLanguagesCount: diagnostics?.allowed_languages_count ?? (activePlan === "free" ? FREE_LANGUAGE_LIMIT : Number.MAX_SAFE_INTEGER),
-    unlimitedLanguages: diagnostics?.unlimited_languages ?? activePlan !== "free",
-    unlimitedAi: diagnostics?.unlimited_ai ?? activePlan === "business",
-    priorityProcessing: diagnostics?.priority_processing ?? activePlan === "business",
-    subscriptionSource: diagnostics?.subscription_source ?? "frontend-fallback",
-    permissionState: diagnostics?.permission_state ?? activePlan,
-    loading,
-    refresh: load,
-    hasPlanAtLeast,
-    trackEvent,
-  }), [activePlan, diagnostics, load, loading, subscription, trackEvent]);
-
-  return (
-    <SubCtx.Provider value={value}>
-      {children}
-    </SubCtx.Provider>
+  const value = useMemo<Ctx>(
+    () => ({
+      subscription,
+      activePlan,
+      diagnostics,
+      aiLimit: diagnostics?.ai_limit ?? PLAN_AI_LIMITS[activePlan],
+      aiUsedToday: diagnostics?.ai_used_today ?? 0,
+      aiRemaining:
+        diagnostics?.ai_remaining ??
+        (PLAN_AI_LIMITS[activePlan] === -1 ? -1 : PLAN_AI_LIMITS[activePlan]),
+      allowedLanguagesCount:
+        diagnostics?.allowed_languages_count ??
+        (activePlan === "free" ? FREE_LANGUAGE_LIMIT : Number.MAX_SAFE_INTEGER),
+      unlimitedLanguages: diagnostics?.unlimited_languages ?? activePlan !== "free",
+      unlimitedAi: diagnostics?.unlimited_ai ?? activePlan === "business",
+      priorityProcessing: diagnostics?.priority_processing ?? activePlan === "business",
+      subscriptionSource: diagnostics?.subscription_source ?? "frontend-fallback",
+      permissionState: diagnostics?.permission_state ?? activePlan,
+      loading,
+      refresh: load,
+      hasPlanAtLeast,
+      trackEvent,
+    }),
+    [activePlan, diagnostics, load, loading, subscription, trackEvent],
   );
+
+  return <SubCtx.Provider value={value}>{children}</SubCtx.Provider>;
 }
 
 export function useSubscription() {

@@ -158,7 +158,12 @@ export function LanguagePicker({
             className="h-7 w-7 grid place-items-center rounded-md hover:bg-muted"
             aria-label={isFav ? "Unfavorite" : "Favorite"}
           >
-            <Star className={cn("h-3.5 w-3.5", isFav ? "fill-amber-400 text-amber-400" : "text-muted-foreground")} />
+            <Star
+              className={cn(
+                "h-3.5 w-3.5",
+                isFav ? "fill-amber-400 text-amber-400" : "text-muted-foreground",
+              )}
+            />
           </button>
         )}
       </button>
@@ -172,7 +177,10 @@ export function LanguagePicker({
           variant="outline"
           role="combobox"
           aria-label={ariaLabel}
-          className={cn("w-full h-12 justify-between rounded-2xl bg-background/60 text-sm font-medium", className)}
+          className={cn(
+            "w-full h-12 justify-between rounded-2xl bg-background/60 text-sm font-medium",
+            className,
+          )}
         >
           <span className="truncate">{triggerLabel}</span>
           <ChevronsUpDown className="h-4 w-4 opacity-60 shrink-0 ms-2" />
@@ -192,8 +200,12 @@ export function LanguagePicker({
           </div>
           {!loading && !unlimitedLanguages && (
             <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>{FREE_CODES.size} free · {LANGUAGES.length - FREE_CODES.size} premium</span>
-              <Link to="/pricing" className="text-primary hover:underline">Upgrade</Link>
+              <span>
+                {FREE_CODES.size} free · {LANGUAGES.length - FREE_CODES.size} premium
+              </span>
+              <Link to="/pricing" className="text-primary hover:underline">
+                Upgrade
+              </Link>
             </div>
           )}
         </div>
@@ -213,7 +225,8 @@ export function LanguagePicker({
                   <div className="font-medium">Auto-detect</div>
                   {detectedCode && (
                     <div className="text-[11px] text-muted-foreground">
-                      Detected: {LANGUAGES.find((l) => l.code === detectedCode)?.native ?? detectedCode}
+                      Detected:{" "}
+                      {LANGUAGES.find((l) => l.code === detectedCode)?.native ?? detectedCode}
                     </div>
                   )}
                 </div>
@@ -223,13 +236,19 @@ export function LanguagePicker({
 
             {!query && favs.length > 0 && (
               <Section title="Favorites">
-                {favs.map((c) => LANGUAGES.find((l) => l.code === c)).filter(Boolean).map((l) => renderRow(l!))}
+                {favs
+                  .map((c) => LANGUAGES.find((l) => l.code === c))
+                  .filter(Boolean)
+                  .map((l) => renderRow(l!))}
               </Section>
             )}
 
             {!query && recents.length > 0 && (
               <Section title="Recent">
-                {recents.map((c) => LANGUAGES.find((l) => l.code === c)).filter(Boolean).map((l) => renderRow(l!))}
+                {recents
+                  .map((c) => LANGUAGES.find((l) => l.code === c))
+                  .filter(Boolean)
+                  .map((l) => renderRow(l!))}
               </Section>
             )}
 
