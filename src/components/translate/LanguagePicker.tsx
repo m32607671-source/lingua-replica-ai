@@ -71,7 +71,7 @@ export function LanguagePicker({
   className,
   ariaLabel = "Select language",
 }: Props) {
-  const { activePlan } = useSubscription();
+  const { activePlan, loading, unlimitedLanguages, trackEvent } = useSubscription();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [favs, setFavs] = useState<string[]>(() => readList(FAV_KEY));
@@ -107,7 +107,9 @@ export function LanguagePicker({
         : value.toUpperCase();
 
   const pick = (code: string) => {
-    if (isLanguageLocked(code, activePlan)) {
+    const locked = !loading && !unlimitedLanguages && isLanguageLocked(code, activePlan);
+    if (locked) {
+      trackEvent("language_access_failure", { language: code, source: "picker" });
       toast.error("This language requires Pro or Business.", {
         action: { label: "Upgrade", onClick: () => (window.location.href = "/pricing") },
       });
@@ -120,7 +122,7 @@ export function LanguagePicker({
   };
 
   const renderRow = (l: Language) => {
-    const locked = isLanguageLocked(l.code, activePlan);
+    const locked = !loading && !unlimitedLanguages && isLanguageLocked(l.code, activePlan);
     const isFav = favs.includes(l.code);
     return (
       <button
@@ -188,7 +190,7 @@ export function LanguagePicker({
               className="pl-8 h-9"
             />
           </div>
-          {activePlan === "free" && (
+          {!loading && !unlimitedLanguages && (
             <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
               <span>{FREE_CODES.size} free · {LANGUAGES.length - FREE_CODES.size} premium</span>
               <Link to="/pricing" className="text-primary hover:underline">Upgrade</Link>
