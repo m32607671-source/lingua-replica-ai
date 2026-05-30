@@ -80,7 +80,7 @@ export function CompanionWidget() {
   const current = CHARACTERS.find((c) => c.id === character)!;
   const displayedLimit = activePlan === "business" ? -1 : activePlan === "pro" ? Math.max(limit, 100) : limit;
   const isUnlimited = displayedLimit === -1;
-  const remaining = isUnlimited ? "∞" : Math.max(0, limit - used);
+  const remaining = isUnlimited ? "∞" : Math.max(0, displayedLimit - used);
   const limitReached = !planLoading && !isUnlimited && used >= displayedLimit;
   const planColor =
     activePlan === "business"
@@ -141,7 +141,7 @@ export function CompanionWidget() {
 
       {/* Chat panel */}
       {open && (
-        <Card className="fixed bottom-5 right-5 z-50 w-[calc(100vw-2.5rem)] sm:w-96 h-[70vh] sm:h-[560px] max-h-[640px] flex flex-col overflow-hidden animate-scale-in shadow-2xl border-border/60">
+        <Card className="fixed bottom-3 left-2 right-2 sm:left-auto sm:bottom-5 sm:right-5 z-50 w-auto sm:w-96 h-[min(74vh,38rem)] sm:h-[560px] max-h-[calc(100dvh-1.5rem)] flex flex-col overflow-hidden animate-scale-in shadow-2xl border-border/60">
           {/* Header */}
           <div className="flex items-center justify-between p-3 border-b bg-gradient-to-r from-primary/10 to-primary/5">
             <button
