@@ -85,15 +85,27 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       return;
     }
     setLoading(true);
-    const [{ data }, accessRes] = await Promise.all([
+    const [{ data, error: subsError }, accessRes] = await Promise.all([
       supabase
         .from("subscriptions")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false }),
-      (supabase.rpc as unknown as (fn: string) => Promise<{ data: SubscriptionAccessDiagnostics | null; error: unknown }>)
+      (supabase.rpc as unknown as (fn: string) => Promise<{ data: SubscriptionAccessDiagnostics | null; error: { message?: string } | null }>)
         ("get_my_subscription_access"),
     ]);
+
+    if (subsError || accessRes.error) {
+      void supabase.from("subscription_access_events").insert({
+        user_id: user.id,
+        event_type: "subscription_sync_failure",
+        plan: "free",
+        details: {
+          subscriptions_error: subsError?.message ?? null,
+          access_error: accessRes.error?.message ?? null,
+        },
+      });
+    }
 
     const rows = (data ?? []) as Subscription[];
     // Pick highest active, non-expired plan; else latest row
