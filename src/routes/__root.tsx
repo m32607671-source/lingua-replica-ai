@@ -85,7 +85,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Lingua AI is the world's most advanced AI translation platform. 100+ languages, native-level fluency, real-time speed.",
       },
       { name: "author", content: "Lingua AI" },
-      { property: "og:title", content: "Lingua AI — AI-powered translation" },
+      { property: "og:title", content: "Lingua AI — AI-powered translation for 100+ languages" },
       {
         property: "og:description",
         content: "Translate anything into anything. 100+ languages with native-level AI fluency.",
@@ -93,6 +93,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@LinguaAI" },
+      { name: "twitter:title", content: "Lingua AI — AI-powered translation for 100+ languages" },
+      { name: "description", content: "Lingua Pro Next is an AI-powered translation and language learning application." },
+      { property: "og:description", content: "Lingua Pro Next is an AI-powered translation and language learning application." },
+      { name: "twitter:description", content: "Lingua Pro Next is an AI-powered translation and language learning application." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/yce6znmiuDephTm9rThiheIgL8D3/social-images/social-1780747526635-1780747259628_transformed.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/yce6znmiuDephTm9rThiheIgL8D3/social-images/social-1780747526635-1780747259628_transformed.webp" },
     ],
     links: [
       {
