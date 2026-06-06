@@ -29,11 +29,11 @@ function RegisterPage() {
     if (password.length < 6) { toast.error("Password must be at least 6 characters"); return; }
     setLoading(true);
     const { error } = await supabase.auth.signUp({
-      email,
+      email: email.trim(),
       password,
       options: {
         emailRedirectTo: window.location.origin + "/dashboard",
-        data: { full_name: name },
+        data: { full_name: name.trim() },
       },
     });
     setLoading(false);
@@ -68,21 +68,21 @@ function RegisterPage() {
                 <label className="text-sm font-medium">{t("auth.name")}</label>
                 <div className="relative">
                   <User className="w-4 h-4 absolute top-3.5 start-3 text-muted-foreground" />
-                  <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full h-11 ps-10 pe-3 rounded-xl bg-background/50 border border-border focus:outline-none focus:ring-2 focus:ring-ring" placeholder="Jane Doe" />
+                  <input type="text" autoComplete="name" required value={name} onChange={(e) => setName(e.target.value)} className="w-full h-11 ps-10 pe-3 rounded-xl bg-background/50 border border-border focus:outline-none focus:ring-2 focus:ring-ring" placeholder="Jane Doe" />
                 </div>
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium">{t("auth.email")}</label>
                 <div className="relative">
                   <Mail className="w-4 h-4 absolute top-3.5 start-3 text-muted-foreground" />
-                  <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full h-11 ps-10 pe-3 rounded-xl bg-background/50 border border-border focus:outline-none focus:ring-2 focus:ring-ring" placeholder="you@example.com" />
+                  <input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full h-11 ps-10 pe-3 rounded-xl bg-background/50 border border-border focus:outline-none focus:ring-2 focus:ring-ring" placeholder="you@example.com" />
                 </div>
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium">{t("auth.password")}</label>
                 <div className="relative">
                   <Lock className="w-4 h-4 absolute top-3.5 start-3 text-muted-foreground" />
-                  <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full h-11 ps-10 pe-3 rounded-xl bg-background/50 border border-border focus:outline-none focus:ring-2 focus:ring-ring" placeholder="At least 6 characters" />
+                  <input type="password" autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full h-11 ps-10 pe-3 rounded-xl bg-background/50 border border-border focus:outline-none focus:ring-2 focus:ring-ring" placeholder="At least 6 characters" />
                 </div>
               </div>
               <Button type="submit" disabled={loading} className="w-full h-11 bg-gradient-primary text-white shadow-glow">
