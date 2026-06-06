@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { LANG_NAMES, FREE_CODES } from "@/lib/languages";
@@ -17,6 +16,7 @@ const SYSTEM_PROMPT =
 export const translateText = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }) => {
+    const { getRequest } = await import("@tanstack/react-start/server");
     const SUPABASE_URL = process.env.SUPABASE_URL;
     const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
     const authHeader = getRequest()?.headers.get("authorization") ?? "";
