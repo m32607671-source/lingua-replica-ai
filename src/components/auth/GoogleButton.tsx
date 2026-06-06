@@ -7,16 +7,33 @@ export function GoogleButton({ label }: { label: string }) {
 
   const handleClick = async () => {
     setLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/dashboard",
-    });
-    if (result.error) {
-      toast.error(result.error.message || "Sign in failed");
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin + "/dashboard",
+      });
+      if (result.error) {
+        const raw = result.error.message || "";
+        const isPreview = /id-preview--/.test(window.location.hostname);
+        const friendly = isPreview
+          ? "Google Sign-In is blocked inside the Lovable Preview. Open the Published URL (or your custom domain) and try again."
+          : /vendor|provider|fetch/i.test(raw)
+            ? "Google Sign-In is temporarily unavailable. Please try again in a moment, or use email & password."
+            : raw || "Sign in failed. Please try again.";
+        toast.error(friendly);
+        setLoading(false);
+        return;
+      }
+      if (result.redirected) return;
+      window.location.href = "/dashboard";
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error(
+        /failed to fetch/i.test(msg)
+          ? "Network blocked the sign-in request. If you're in Lovable Preview, try the Published URL."
+          : msg,
+      );
       setLoading(false);
-      return;
     }
-    if (result.redirected) return;
-    window.location.href = "/dashboard";
   };
 
   return (
