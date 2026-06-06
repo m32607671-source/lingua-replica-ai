@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { LANG_NAMES, FREE_CODES } from "@/lib/languages";
+import type { Database } from "@/integrations/supabase/types";
 
 const InputSchema = z.object({
   text: z.string().trim().min(1).max(5000),
@@ -13,17 +14,28 @@ const SYSTEM_PROMPT =
   "You are a professional translator. Translate the text accurately while preserving meaning, tone, and context. Return only the translation without explanations.";
 
 export const translateText = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => InputSchema.parse(input))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+  .handler(async ({ data }) => {
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+    const authHeader = getRequest()?.headers.get("authorization") ?? "";
+    const token = authHeader.startsWith("Bearer ") ? authHeader.replace("Bearer ", "") : "";
+    const supabase = SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY
+      ? createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+          global: token ? { headers: { Authorization: `Bearer ${token}` } } : undefined,
+          auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+        })
+      : null;
 
     // Determine real-time subscription access from the database source of truth.
-    const { data: accessRow } = await (
-      supabase.rpc as unknown as (
-        fn: string,
-      ) => Promise<{ data: { current_plan?: string; unlimited_languages?: boolean } | null }>
-    )("get_my_subscription_access");
+    const { data: accessRow } = supabase && token
+      ? await (
+          supabase.rpc as unknown as (
+            fn: string,
+          ) => Promise<{ data: { current_plan?: string; unlimited_languages?: boolean } | null }>
+        )("get_my_subscription_access")
+      : { data: null };
     const plan = accessRow?.current_plan || "free";
     const unlimitedLanguages = accessRow?.unlimited_languages ?? plan !== "free";
 
@@ -32,7 +44,7 @@ export const translateText = createServerFn({ method: "POST" })
       const target = data.to.toLowerCase();
       const source = data.from === "auto" ? null : data.from.toLowerCase();
       if (!FREE_CODES.has(target) || (source && !FREE_CODES.has(source))) {
-        await (
+        if (supabase && token) await (
           supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<unknown>
         )("track_subscription_access_event", {
           _event_type: "language_access_block",

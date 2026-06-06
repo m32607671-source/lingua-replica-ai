@@ -8,6 +8,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { GoogleButton } from "@/components/auth/GoogleButton";
 
+function safeRedirectPath(redirect?: string) {
+  if (!redirect || redirect.startsWith("//")) return "/dashboard";
+  if (redirect.startsWith("/")) return redirect;
+  try {
+    const url = new URL(redirect, window.location.origin);
+    return url.origin === window.location.origin ? `${url.pathname}${url.search}${url.hash}` : "/dashboard";
+  } catch {
+    return "/dashboard";
+  }
+}
+
 export const Route = createFileRoute("/login")({
   component: LoginPage,
   validateSearch: (s: Record<string, unknown>) => ({
@@ -30,18 +41,20 @@ function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    const { data: verified, error: verifyError } = error
+      ? { data: { user: null }, error }
+      : await supabase.auth.getUser();
     setLoading(false);
-    if (error) {
-      toast.error(error.message);
+    if (error || verifyError || !verified.user) {
+      toast.error(error?.message || verifyError?.message || "Session could not be verified. Please try again.");
       return;
     }
     toast.success("Welcome back!");
-    if (search.redirect) {
-      window.location.href = search.redirect;
-    } else {
-      navigate({ to: "/dashboard" });
-    }
+    navigate({ to: safeRedirectPath(search.redirect) as never, replace: true });
   };
 
   return (
@@ -67,14 +80,14 @@ function LoginPage() {
                 <label className="text-sm font-medium">{t("auth.email")}</label>
                 <div className="relative">
                   <Mail className="w-4 h-4 absolute top-3.5 start-3 text-muted-foreground" />
-                  <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full h-11 ps-10 pe-3 rounded-xl bg-background/50 border border-border focus:outline-none focus:ring-2 focus:ring-ring" placeholder="you@example.com" />
+                  <input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full h-11 ps-10 pe-3 rounded-xl bg-background/50 border border-border focus:outline-none focus:ring-2 focus:ring-ring" placeholder="you@example.com" />
                 </div>
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium">{t("auth.password")}</label>
                 <div className="relative">
                   <Lock className="w-4 h-4 absolute top-3.5 start-3 text-muted-foreground" />
-                  <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full h-11 ps-10 pe-3 rounded-xl bg-background/50 border border-border focus:outline-none focus:ring-2 focus:ring-ring" placeholder="••••••••" />
+                  <input type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full h-11 ps-10 pe-3 rounded-xl bg-background/50 border border-border focus:outline-none focus:ring-2 focus:ring-ring" placeholder="••••••••" />
                 </div>
               </div>
               <div className="text-end">
