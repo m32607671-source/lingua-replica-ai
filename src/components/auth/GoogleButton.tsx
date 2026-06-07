@@ -1,15 +1,21 @@
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 
 export function GoogleButton({ label }: { label: string }) {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { refreshSession } = useAuth();
 
   const handleClick = async () => {
     setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin + "/dashboard",
+        extraParams: { prompt: "select_account" },
       });
       if (result.error) {
         const raw = result.error.message || "";
@@ -24,7 +30,16 @@ export function GoogleButton({ label }: { label: string }) {
         return;
       }
       if (result.redirected) return;
-      window.location.href = "/dashboard";
+      const { error: initError } = await (
+        supabase.rpc as unknown as (fn: string) => Promise<{ data: unknown; error: { message: string } | null }>
+      )("ensure_my_account_initialized");
+      if (initError) {
+        toast.error("Google sign-in succeeded, but account setup did not finish. Please try again.");
+        setLoading(false);
+        return;
+      }
+      await refreshSession();
+      navigate({ to: "/dashboard", replace: true });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       toast.error(
