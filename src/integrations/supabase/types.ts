@@ -447,6 +447,7 @@ export type Database = {
     Functions: {
       admin_diagnostics: { Args: never; Returns: Json }
       companion_daily_used: { Args: { _user_id: string }; Returns: number }
+      ensure_my_account_initialized: { Args: never; Returns: Json }
       get_active_plan: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["subscription_plan"]
@@ -464,6 +465,7 @@ export type Database = {
           user_created_at: string
         }[]
       }
+      get_my_auth_diagnostics: { Args: never; Returns: Json }
       get_my_subscription_access: { Args: never; Returns: Json }
       has_plan_at_least: {
         Args: {
