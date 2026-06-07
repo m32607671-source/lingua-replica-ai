@@ -7,6 +7,7 @@ import { Mail, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { GoogleButton } from "@/components/auth/GoogleButton";
+import { useAuth } from "@/lib/auth";
 
 function safeRedirectPath(redirect?: string) {
   if (!redirect || redirect.startsWith("//")) return "/dashboard";
@@ -34,6 +35,7 @@ function LoginPage() {
   const { t } = useApp();
   const navigate = useNavigate();
   const search = Route.useSearch();
+  const { refreshSession } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,8 +43,9 @@ function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const normalizedEmail = email.trim().toLowerCase();
     const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
+      email: normalizedEmail,
       password,
     });
     const { data: verified, error: verifyError } = error
@@ -50,9 +53,18 @@ function LoginPage() {
       : await supabase.auth.getUser();
     setLoading(false);
     if (error || verifyError || !verified.user) {
-      toast.error(error?.message || verifyError?.message || "Session could not be verified. Please try again.");
+      const raw = error?.message || verifyError?.message || "Session could not be verified. Please try again.";
+      toast.error(/invalid login credentials/i.test(raw) ? "Email or password is incorrect. If this account was created with Google, use Google Sign-In or reset your password." : raw);
       return;
     }
+    const { error: initError } = await (
+      supabase.rpc as unknown as (fn: string) => Promise<{ data: unknown; error: { message: string } | null }>
+    )("ensure_my_account_initialized");
+    if (initError) {
+      toast.error("Your session is active, but account setup did not finish. Please try again.");
+      return;
+    }
+    await refreshSession();
     toast.success("Welcome back!");
     navigate({ to: safeRedirectPath(search.redirect) as never, replace: true });
   };

@@ -7,6 +7,7 @@ import { Mail, Lock, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { GoogleButton } from "@/components/auth/GoogleButton";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/register")({
 function RegisterPage() {
   const { t } = useApp();
   const navigate = useNavigate();
+  const { refreshSession } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,8 +30,8 @@ function RegisterPage() {
     e.preventDefault();
     if (password.length < 6) { toast.error("Password must be at least 6 characters"); return; }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email: email.trim(),
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim().toLowerCase(),
       password,
       options: {
         emailRedirectTo: window.location.origin + "/dashboard",
@@ -39,6 +41,20 @@ function RegisterPage() {
     setLoading(false);
     if (error) {
       toast.error(error.message);
+      return;
+    }
+    if (data.session) {
+      const { error: initError } = await (
+        supabase.rpc as unknown as (fn: string) => Promise<{ data: unknown; error: { message: string } | null }>
+      )("ensure_my_account_initialized");
+      if (initError) {
+        toast.error("Account created, but setup did not finish. Please sign in again.");
+        navigate({ to: "/login" });
+        return;
+      }
+      await refreshSession();
+      toast.success("Account created.");
+      navigate({ to: "/dashboard", replace: true });
       return;
     }
     toast.success("Check your email to confirm your account.");
