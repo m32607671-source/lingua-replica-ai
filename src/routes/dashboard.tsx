@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { useSubscription } from "@/lib/subscription";
 import { Button } from "@/components/ui/button";
 import { SubscriptionDiagnosticsPanel } from "@/components/subscription/SubscriptionDiagnosticsPanel";
+import { AuthDiagnosticsPanel } from "@/components/auth/AuthDiagnosticsPanel";
 import {
   TrendingUp,
   Languages as LangIcon,
@@ -111,6 +112,10 @@ function DashboardPage() {
                 </div>
               );
             })}
+          </div>
+
+          <div className="mb-8">
+            <AuthDiagnosticsPanel />
           </div>
 
           <div className="mb-8">
