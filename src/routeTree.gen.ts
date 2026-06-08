@@ -17,10 +17,17 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as GamesRouteImport } from './routes/games'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ClansRouteImport } from './routes/clans'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GamesWordCatcherRouteImport } from './routes/games.word-catcher'
+import { Route as GamesMemoryMatchRouteImport } from './routes/games.memory-match'
+import { Route as GamesHangmanRouteImport } from './routes/games.hangman'
+import { Route as ClansClanIdRouteImport } from './routes/clans.$clanId'
 
 const TranslateRoute = TranslateRouteImport.update({
   id: '/translate',
@@ -62,6 +69,16 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamesRoute = GamesRouteImport.update({
+  id: '/games',
+  path: '/games',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
@@ -70,6 +87,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClansRoute = ClansRouteImport.update({
+  id: '/clans',
+  path: '/clans',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -82,12 +104,35 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GamesWordCatcherRoute = GamesWordCatcherRouteImport.update({
+  id: '/word-catcher',
+  path: '/word-catcher',
+  getParentRoute: () => GamesRoute,
+} as any)
+const GamesMemoryMatchRoute = GamesMemoryMatchRouteImport.update({
+  id: '/memory-match',
+  path: '/memory-match',
+  getParentRoute: () => GamesRoute,
+} as any)
+const GamesHangmanRoute = GamesHangmanRouteImport.update({
+  id: '/hangman',
+  path: '/hangman',
+  getParentRoute: () => GamesRoute,
+} as any)
+const ClansClanIdRoute = ClansClanIdRouteImport.update({
+  id: '/$clanId',
+  path: '/$clanId',
+  getParentRoute: () => ClansRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/clans': typeof ClansRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/games': typeof GamesRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
@@ -96,12 +141,19 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/translate': typeof TranslateRoute
+  '/clans/$clanId': typeof ClansClanIdRoute
+  '/games/hangman': typeof GamesHangmanRoute
+  '/games/memory-match': typeof GamesMemoryMatchRoute
+  '/games/word-catcher': typeof GamesWordCatcherRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/clans': typeof ClansRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/games': typeof GamesRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
@@ -110,13 +162,20 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/translate': typeof TranslateRoute
+  '/clans/$clanId': typeof ClansClanIdRoute
+  '/games/hangman': typeof GamesHangmanRoute
+  '/games/memory-match': typeof GamesMemoryMatchRoute
+  '/games/word-catcher': typeof GamesWordCatcherRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/clans': typeof ClansRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/games': typeof GamesRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
@@ -125,14 +184,21 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/translate': typeof TranslateRoute
+  '/clans/$clanId': typeof ClansClanIdRoute
+  '/games/hangman': typeof GamesHangmanRoute
+  '/games/memory-match': typeof GamesMemoryMatchRoute
+  '/games/word-catcher': typeof GamesWordCatcherRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/admin'
+    | '/clans'
     | '/dashboard'
     | '/forgot-password'
+    | '/games'
+    | '/leaderboard'
     | '/login'
     | '/pricing'
     | '/profile'
@@ -141,12 +207,19 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/store'
     | '/translate'
+    | '/clans/$clanId'
+    | '/games/hangman'
+    | '/games/memory-match'
+    | '/games/word-catcher'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
+    | '/clans'
     | '/dashboard'
     | '/forgot-password'
+    | '/games'
+    | '/leaderboard'
     | '/login'
     | '/pricing'
     | '/profile'
@@ -155,12 +228,19 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/store'
     | '/translate'
+    | '/clans/$clanId'
+    | '/games/hangman'
+    | '/games/memory-match'
+    | '/games/word-catcher'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/clans'
     | '/dashboard'
     | '/forgot-password'
+    | '/games'
+    | '/leaderboard'
     | '/login'
     | '/pricing'
     | '/profile'
@@ -169,13 +249,20 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/store'
     | '/translate'
+    | '/clans/$clanId'
+    | '/games/hangman'
+    | '/games/memory-match'
+    | '/games/word-catcher'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  ClansRoute: typeof ClansRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  GamesRoute: typeof GamesRouteWithChildren
+  LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   PricingRoute: typeof PricingRoute
   ProfileRoute: typeof ProfileRoute
@@ -244,6 +331,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games': {
+      id: '/games'
+      path: '/games'
+      fullPath: '/games'
+      preLoaderRoute: typeof GamesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/forgot-password': {
       id: '/forgot-password'
       path: '/forgot-password'
@@ -256,6 +357,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clans': {
+      id: '/clans'
+      path: '/clans'
+      fullPath: '/clans'
+      preLoaderRoute: typeof ClansRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -272,14 +380,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/games/word-catcher': {
+      id: '/games/word-catcher'
+      path: '/word-catcher'
+      fullPath: '/games/word-catcher'
+      preLoaderRoute: typeof GamesWordCatcherRouteImport
+      parentRoute: typeof GamesRoute
+    }
+    '/games/memory-match': {
+      id: '/games/memory-match'
+      path: '/memory-match'
+      fullPath: '/games/memory-match'
+      preLoaderRoute: typeof GamesMemoryMatchRouteImport
+      parentRoute: typeof GamesRoute
+    }
+    '/games/hangman': {
+      id: '/games/hangman'
+      path: '/hangman'
+      fullPath: '/games/hangman'
+      preLoaderRoute: typeof GamesHangmanRouteImport
+      parentRoute: typeof GamesRoute
+    }
+    '/clans/$clanId': {
+      id: '/clans/$clanId'
+      path: '/$clanId'
+      fullPath: '/clans/$clanId'
+      preLoaderRoute: typeof ClansClanIdRouteImport
+      parentRoute: typeof ClansRoute
+    }
   }
 }
+
+interface ClansRouteChildren {
+  ClansClanIdRoute: typeof ClansClanIdRoute
+}
+
+const ClansRouteChildren: ClansRouteChildren = {
+  ClansClanIdRoute: ClansClanIdRoute,
+}
+
+const ClansRouteWithChildren = ClansRoute._addFileChildren(ClansRouteChildren)
+
+interface GamesRouteChildren {
+  GamesHangmanRoute: typeof GamesHangmanRoute
+  GamesMemoryMatchRoute: typeof GamesMemoryMatchRoute
+  GamesWordCatcherRoute: typeof GamesWordCatcherRoute
+}
+
+const GamesRouteChildren: GamesRouteChildren = {
+  GamesHangmanRoute: GamesHangmanRoute,
+  GamesMemoryMatchRoute: GamesMemoryMatchRoute,
+  GamesWordCatcherRoute: GamesWordCatcherRoute,
+}
+
+const GamesRouteWithChildren = GamesRoute._addFileChildren(GamesRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  ClansRoute: ClansRouteWithChildren,
   DashboardRoute: DashboardRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  GamesRoute: GamesRouteWithChildren,
+  LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   PricingRoute: PricingRoute,
   ProfileRoute: ProfileRoute,
@@ -292,13 +455,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
