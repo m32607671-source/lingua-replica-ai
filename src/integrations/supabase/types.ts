@@ -77,6 +77,109 @@ export type Database = {
         }
         Relationships: []
       }
+      clan_members: {
+        Row: {
+          clan_id: string
+          contributed_xp: number
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          clan_id: string
+          contributed_xp?: number
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          clan_id?: string
+          contributed_xp?: number
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clan_members_clan_id_fkey"
+            columns: ["clan_id"]
+            isOneToOne: false
+            referencedRelation: "clans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clan_messages: {
+        Row: {
+          clan_id: string
+          content: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          clan_id: string
+          content: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          clan_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clan_messages_clan_id_fkey"
+            columns: ["clan_id"]
+            isOneToOne: false
+            referencedRelation: "clans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clans: {
+        Row: {
+          created_at: string
+          description: string | null
+          emoji: string
+          id: string
+          member_count: number
+          name: string
+          owner_id: string
+          tag: string
+          total_xp: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          member_count?: number
+          name: string
+          owner_id: string
+          tag: string
+          total_xp?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          member_count?: number
+          name?: string
+          owner_id?: string
+          tag?: string
+          total_xp?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       coin_transactions: {
         Row: {
           amount: number
@@ -234,6 +337,81 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      game_sessions: {
+        Row: {
+          coins_earned: number
+          created_at: string
+          duration_seconds: number | null
+          game_code: string
+          id: string
+          score: number
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          coins_earned?: number
+          created_at?: string
+          duration_seconds?: number | null
+          game_code: string
+          id?: string
+          score?: number
+          user_id: string
+          xp_earned?: number
+        }
+        Update: {
+          coins_earned?: number
+          created_at?: string
+          duration_seconds?: number | null
+          game_code?: string
+          id?: string
+          score?: number
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: []
+      }
+      games: {
+        Row: {
+          category: string
+          code: string
+          coin_reward: number
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          sort_order: number
+          status: string
+          xp_reward: number
+        }
+        Insert: {
+          category: string
+          code: string
+          coin_reward?: number
+          created_at?: string
+          description: string
+          icon?: string
+          id?: string
+          name: string
+          sort_order?: number
+          status?: string
+          xp_reward?: number
+        }
+        Update: {
+          category?: string
+          code?: string
+          coin_reward?: number
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          status?: string
+          xp_reward?: number
+        }
+        Relationships: []
       }
       owned_skins: {
         Row: {
@@ -447,6 +625,15 @@ export type Database = {
     Functions: {
       admin_diagnostics: { Args: never; Returns: Json }
       companion_daily_used: { Args: { _user_id: string }; Returns: number }
+      create_clan: {
+        Args: {
+          _description?: string
+          _emoji?: string
+          _name: string
+          _tag: string
+        }
+        Returns: Json
+      }
       ensure_my_account_initialized: { Args: never; Returns: Json }
       get_active_plan: {
         Args: { _user_id: string }
@@ -481,7 +668,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_clan_member: {
+        Args: { _clan_id: string; _user_id: string }
+        Returns: boolean
+      }
+      join_clan: { Args: { _clan_id: string }; Returns: Json }
+      leave_clan: { Args: never; Returns: Json }
       purchase_skin: { Args: { _skin_id: string }; Returns: Json }
+      submit_game_score: {
+        Args: { _duration_seconds?: number; _game_code: string; _score: number }
+        Returns: Json
+      }
       track_subscription_access_event: {
         Args: {
           _details?: Json
