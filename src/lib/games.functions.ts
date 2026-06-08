@@ -94,7 +94,7 @@ export const submitGameScore = createServerFn({ method: "POST" })
     const { data: result, error } = await context.supabase.rpc("submit_game_score", {
       _game_code: data.game,
       _score: data.score,
-      _duration_seconds: data.duration_seconds ?? null,
+      _duration_seconds: data.duration_seconds ?? undefined,
     });
     if (error) return { ok: false, error: error.message };
     return result as { ok: boolean; xp_earned?: number; coins_earned?: number; error?: string };

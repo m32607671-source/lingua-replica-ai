@@ -129,7 +129,7 @@ function CreateClanDialog({ onCreated }: { onCreated: () => void }) {
     e.preventDefault();
     setSaving(true);
     const { data, error } = await supabase.rpc("create_clan", {
-      _name: name, _tag: tag, _description: description || null, _emoji: emoji,
+      _name: name, _tag: tag, _description: description || undefined, _emoji: emoji,
     });
     setSaving(false);
     if (error) return toast.error(error.message);
