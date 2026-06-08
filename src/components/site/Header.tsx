@@ -16,8 +16,11 @@ export function Header() {
   const links = [
     { to: "/", label: t("nav.home") },
     { to: "/translate", label: t("nav.translate") },
-    { to: "/pricing", label: t("nav.pricing") },
+    { to: "/games", label: "Games" },
+    { to: "/leaderboard", label: "Leaderboard" },
+    { to: "/clans", label: "Clans" },
     { to: "/store", label: "Store" },
+    { to: "/pricing", label: t("nav.pricing") },
     { to: "/dashboard", label: t("nav.dashboard") },
     ...(isAdmin ? [{ to: "/admin", label: "Admin" } as const] : []),
   ] as const;
