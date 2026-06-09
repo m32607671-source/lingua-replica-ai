@@ -568,6 +568,270 @@ export type Database = {
         }
         Relationships: []
       }
+      team_activity: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+          team_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json
+          team_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          team_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_activity_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_chat_messages_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_glossary: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          source_language: string
+          target_language: string
+          team_id: string
+          term: string
+          translation: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          source_language?: string
+          target_language?: string
+          team_id: string
+          term: string
+          translation: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          source_language?: string
+          target_language?: string
+          team_id?: string
+          term?: string
+          translation?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_glossary_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_members: {
+        Row: {
+          joined_at: string
+          role: Database["public"]["Enums"]["team_role"]
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          joined_at?: string
+          role?: Database["public"]["Enums"]["team_role"]
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          joined_at?: string
+          role?: Database["public"]["Enums"]["team_role"]
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_project_assignments: {
+        Row: {
+          assigned_at: string
+          assignment_role: Database["public"]["Enums"]["team_assignment_role"]
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assignment_role: Database["public"]["Enums"]["team_assignment_role"]
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assignment_role?: Database["public"]["Enums"]["team_assignment_role"]
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_project_assignments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "team_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_projects: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          name: string
+          progress: number
+          source_language: string
+          status: Database["public"]["Enums"]["team_project_status"]
+          target_language: string
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          name: string
+          progress?: number
+          source_language?: string
+          status?: Database["public"]["Enums"]["team_project_status"]
+          target_language?: string
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name?: string
+          progress?: number
+          source_language?: string
+          status?: Database["public"]["Enums"]["team_project_status"]
+          target_language?: string
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_projects_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          created_at: string
+          description: string | null
+          emoji: string
+          id: string
+          invite_code: string
+          member_count: number
+          name: string
+          owner_id: string
+          project_count: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          invite_code?: string
+          member_count?: number
+          name: string
+          owner_id: string
+          project_count?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          invite_code?: string
+          member_count?: number
+          name?: string
+          owner_id?: string
+          project_count?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_id: string
@@ -623,7 +887,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _team_limits: {
+        Args: { _plan: Database["public"]["Enums"]["subscription_plan"] }
+        Returns: {
+          max_members: number
+          max_projects: number
+          max_teams: number
+        }[]
+      }
       admin_diagnostics: { Args: never; Returns: Json }
+      assign_project_member: {
+        Args: {
+          _project_id: string
+          _role: Database["public"]["Enums"]["team_assignment_role"]
+          _user_id: string
+        }
+        Returns: Json
+      }
+      can_manage_team: {
+        Args: { _team_id: string; _user_id: string }
+        Returns: boolean
+      }
       companion_daily_used: { Args: { _user_id: string }; Returns: number }
       create_clan: {
         Args: {
@@ -631,6 +915,20 @@ export type Database = {
           _emoji?: string
           _name: string
           _tag: string
+        }
+        Returns: Json
+      }
+      create_team: {
+        Args: { _description?: string; _emoji?: string; _name: string }
+        Returns: Json
+      }
+      create_team_project: {
+        Args: {
+          _description?: string
+          _name: string
+          _source_language?: string
+          _target_language?: string
+          _team_id: string
         }
         Returns: Json
       }
@@ -672,12 +970,27 @@ export type Database = {
         Args: { _clan_id: string; _user_id: string }
         Returns: boolean
       }
+      is_team_member: {
+        Args: { _team_id: string; _user_id: string }
+        Returns: boolean
+      }
       join_clan: { Args: { _clan_id: string }; Returns: Json }
+      join_team_by_code: { Args: { _code: string }; Returns: Json }
       leave_clan: { Args: never; Returns: Json }
+      leave_team: { Args: { _team_id: string }; Returns: Json }
       purchase_skin: { Args: { _skin_id: string }; Returns: Json }
+      regenerate_team_invite_code: { Args: { _team_id: string }; Returns: Json }
+      remove_team_member: {
+        Args: { _team_id: string; _user_id: string }
+        Returns: Json
+      }
       submit_game_score: {
         Args: { _duration_seconds?: number; _game_code: string; _score: number }
         Returns: Json
+      }
+      team_member_role: {
+        Args: { _team_id: string; _user_id: string }
+        Returns: Database["public"]["Enums"]["team_role"]
       }
       track_subscription_access_event: {
         Args: {
@@ -687,6 +1000,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      update_team_member_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["team_role"]
+          _team_id: string
+          _user_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "user"
@@ -695,6 +1016,20 @@ export type Database = {
       skin_rarity: "common" | "rare" | "epic" | "legendary"
       subscription_plan: "free" | "pro" | "business"
       subscription_status: "active" | "expired" | "pending" | "cancelled"
+      team_assignment_role: "translator" | "reviewer"
+      team_project_status:
+        | "draft"
+        | "active"
+        | "review"
+        | "completed"
+        | "archived"
+      team_role:
+        | "owner"
+        | "admin"
+        | "manager"
+        | "translator"
+        | "reviewer"
+        | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -828,6 +1163,22 @@ export const Constants = {
       skin_rarity: ["common", "rare", "epic", "legendary"],
       subscription_plan: ["free", "pro", "business"],
       subscription_status: ["active", "expired", "pending", "cancelled"],
+      team_assignment_role: ["translator", "reviewer"],
+      team_project_status: [
+        "draft",
+        "active",
+        "review",
+        "completed",
+        "archived",
+      ],
+      team_role: [
+        "owner",
+        "admin",
+        "manager",
+        "translator",
+        "reviewer",
+        "viewer",
+      ],
     },
   },
 } as const
