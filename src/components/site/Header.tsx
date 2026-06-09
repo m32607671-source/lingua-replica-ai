@@ -19,6 +19,7 @@ export function Header() {
     { to: "/games", label: "Games" },
     { to: "/leaderboard", label: "Leaderboard" },
     { to: "/clans", label: "Clans" },
+    { to: "/teams", label: "Teams" },
     { to: "/store", label: "Store" },
     { to: "/pricing", label: t("nav.pricing") },
     { to: "/dashboard", label: t("nav.dashboard") },

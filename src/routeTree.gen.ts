@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TranslateRouteImport } from './routes/translate'
+import { Route as TeamsRouteImport } from './routes/teams'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -24,6 +25,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ClansRouteImport } from './routes/clans'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TeamsTeamIdRouteImport } from './routes/teams.$teamId'
 import { Route as GamesWordCatcherRouteImport } from './routes/games.word-catcher'
 import { Route as GamesMemoryMatchRouteImport } from './routes/games.memory-match'
 import { Route as GamesHangmanRouteImport } from './routes/games.hangman'
@@ -32,6 +34,11 @@ import { Route as ClansClanIdRouteImport } from './routes/clans.$clanId'
 const TranslateRoute = TranslateRouteImport.update({
   id: '/translate',
   path: '/translate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamsRoute = TeamsRouteImport.update({
+  id: '/teams',
+  path: '/teams',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StoreRoute = StoreRouteImport.update({
@@ -104,6 +111,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeamsTeamIdRoute = TeamsTeamIdRouteImport.update({
+  id: '/$teamId',
+  path: '/$teamId',
+  getParentRoute: () => TeamsRoute,
+} as any)
 const GamesWordCatcherRoute = GamesWordCatcherRouteImport.update({
   id: '/word-catcher',
   path: '/word-catcher',
@@ -140,11 +152,13 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
+  '/teams': typeof TeamsRouteWithChildren
   '/translate': typeof TranslateRoute
   '/clans/$clanId': typeof ClansClanIdRoute
   '/games/hangman': typeof GamesHangmanRoute
   '/games/memory-match': typeof GamesMemoryMatchRoute
   '/games/word-catcher': typeof GamesWordCatcherRoute
+  '/teams/$teamId': typeof TeamsTeamIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -161,11 +175,13 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
+  '/teams': typeof TeamsRouteWithChildren
   '/translate': typeof TranslateRoute
   '/clans/$clanId': typeof ClansClanIdRoute
   '/games/hangman': typeof GamesHangmanRoute
   '/games/memory-match': typeof GamesMemoryMatchRoute
   '/games/word-catcher': typeof GamesWordCatcherRoute
+  '/teams/$teamId': typeof TeamsTeamIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -183,11 +199,13 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
+  '/teams': typeof TeamsRouteWithChildren
   '/translate': typeof TranslateRoute
   '/clans/$clanId': typeof ClansClanIdRoute
   '/games/hangman': typeof GamesHangmanRoute
   '/games/memory-match': typeof GamesMemoryMatchRoute
   '/games/word-catcher': typeof GamesWordCatcherRoute
+  '/teams/$teamId': typeof TeamsTeamIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -206,11 +224,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/store'
+    | '/teams'
     | '/translate'
     | '/clans/$clanId'
     | '/games/hangman'
     | '/games/memory-match'
     | '/games/word-catcher'
+    | '/teams/$teamId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -227,11 +247,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/store'
+    | '/teams'
     | '/translate'
     | '/clans/$clanId'
     | '/games/hangman'
     | '/games/memory-match'
     | '/games/word-catcher'
+    | '/teams/$teamId'
   id:
     | '__root__'
     | '/'
@@ -248,11 +270,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/store'
+    | '/teams'
     | '/translate'
     | '/clans/$clanId'
     | '/games/hangman'
     | '/games/memory-match'
     | '/games/word-catcher'
+    | '/teams/$teamId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -270,6 +294,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StoreRoute: typeof StoreRoute
+  TeamsRoute: typeof TeamsRouteWithChildren
   TranslateRoute: typeof TranslateRoute
 }
 
@@ -280,6 +305,13 @@ declare module '@tanstack/react-router' {
       path: '/translate'
       fullPath: '/translate'
       preLoaderRoute: typeof TranslateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teams': {
+      id: '/teams'
+      path: '/teams'
+      fullPath: '/teams'
+      preLoaderRoute: typeof TeamsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/store': {
@@ -380,6 +412,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/teams/$teamId': {
+      id: '/teams/$teamId'
+      path: '/$teamId'
+      fullPath: '/teams/$teamId'
+      preLoaderRoute: typeof TeamsTeamIdRouteImport
+      parentRoute: typeof TeamsRoute
+    }
     '/games/word-catcher': {
       id: '/games/word-catcher'
       path: '/word-catcher'
@@ -435,6 +474,16 @@ const GamesRouteChildren: GamesRouteChildren = {
 
 const GamesRouteWithChildren = GamesRoute._addFileChildren(GamesRouteChildren)
 
+interface TeamsRouteChildren {
+  TeamsTeamIdRoute: typeof TeamsTeamIdRoute
+}
+
+const TeamsRouteChildren: TeamsRouteChildren = {
+  TeamsTeamIdRoute: TeamsTeamIdRoute,
+}
+
+const TeamsRouteWithChildren = TeamsRoute._addFileChildren(TeamsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
@@ -450,6 +499,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StoreRoute: StoreRoute,
+  TeamsRoute: TeamsRouteWithChildren,
   TranslateRoute: TranslateRoute,
 }
 export const routeTree = rootRouteImport
