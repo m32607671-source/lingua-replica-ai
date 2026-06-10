@@ -17,6 +17,8 @@ export function Header() {
     { to: "/", label: t("nav.home") },
     { to: "/translate", label: t("nav.translate") },
     { to: "/games", label: "Games" },
+    { to: "/quests", label: "Quests" },
+    { to: "/tournaments", label: "Tournaments" },
     { to: "/leaderboard", label: "Leaderboard" },
     { to: "/clans", label: "Clans" },
     { to: "/teams", label: "Teams" },
