@@ -88,9 +88,10 @@ function PlatformAdmin() {
 function StatsPanel() {
   const [stats, setStats] = useState<Stats | null>(null);
   useEffect(() => {
-    supabase.rpc("admin_platform_stats").then(({ data }) => {
-      if (data) setStats(data as unknown as Stats);
+    (supabase as unknown as { rpc: (n: string) => Promise<{ data: unknown }> }).rpc("admin_platform_stats").then(({ data }) => {
+      if (data) setStats(data as Stats);
     });
+
   }, []);
   if (!stats) return <div className="h-24 flex items-center justify-center"><Loader2 className="animate-spin" /></div>;
   const items = [
