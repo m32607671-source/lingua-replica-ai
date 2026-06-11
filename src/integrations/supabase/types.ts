@@ -1692,7 +1692,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "super_admin"
       challenge_kind: "daily" | "weekly" | "monthly"
       clan_war_status: "scheduled" | "active" | "completed"
       coin_tx_kind: "earn" | "spend" | "refund" | "bonus"
@@ -1861,7 +1861,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "super_admin"],
       challenge_kind: ["daily", "weekly", "monthly"],
       clan_war_status: ["scheduled", "active", "completed"],
       coin_tx_kind: ["earn", "spend", "refund", "bonus"],
