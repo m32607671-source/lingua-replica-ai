@@ -30,6 +30,7 @@ import { Route as GamesWordCatcherRouteImport } from './routes/games.word-catche
 import { Route as GamesMemoryMatchRouteImport } from './routes/games.memory-match'
 import { Route as GamesHangmanRouteImport } from './routes/games.hangman'
 import { Route as ClansClanIdRouteImport } from './routes/clans.$clanId'
+import { Route as AdminPlatformRouteImport } from './routes/admin.platform'
 
 const TranslateRoute = TranslateRouteImport.update({
   id: '/translate',
@@ -136,10 +137,15 @@ const ClansClanIdRoute = ClansClanIdRouteImport.update({
   path: '/$clanId',
   getParentRoute: () => ClansRoute,
 } as any)
+const AdminPlatformRoute = AdminPlatformRouteImport.update({
+  id: '/platform',
+  path: '/platform',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/clans': typeof ClansRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/store': typeof StoreRoute
   '/teams': typeof TeamsRouteWithChildren
   '/translate': typeof TranslateRoute
+  '/admin/platform': typeof AdminPlatformRoute
   '/clans/$clanId': typeof ClansClanIdRoute
   '/games/hangman': typeof GamesHangmanRoute
   '/games/memory-match': typeof GamesMemoryMatchRoute
@@ -162,7 +169,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/clans': typeof ClansRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -177,6 +184,7 @@ export interface FileRoutesByTo {
   '/store': typeof StoreRoute
   '/teams': typeof TeamsRouteWithChildren
   '/translate': typeof TranslateRoute
+  '/admin/platform': typeof AdminPlatformRoute
   '/clans/$clanId': typeof ClansClanIdRoute
   '/games/hangman': typeof GamesHangmanRoute
   '/games/memory-match': typeof GamesMemoryMatchRoute
@@ -186,7 +194,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/clans': typeof ClansRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -201,6 +209,7 @@ export interface FileRoutesById {
   '/store': typeof StoreRoute
   '/teams': typeof TeamsRouteWithChildren
   '/translate': typeof TranslateRoute
+  '/admin/platform': typeof AdminPlatformRoute
   '/clans/$clanId': typeof ClansClanIdRoute
   '/games/hangman': typeof GamesHangmanRoute
   '/games/memory-match': typeof GamesMemoryMatchRoute
@@ -226,6 +235,7 @@ export interface FileRouteTypes {
     | '/store'
     | '/teams'
     | '/translate'
+    | '/admin/platform'
     | '/clans/$clanId'
     | '/games/hangman'
     | '/games/memory-match'
@@ -249,6 +259,7 @@ export interface FileRouteTypes {
     | '/store'
     | '/teams'
     | '/translate'
+    | '/admin/platform'
     | '/clans/$clanId'
     | '/games/hangman'
     | '/games/memory-match'
@@ -272,6 +283,7 @@ export interface FileRouteTypes {
     | '/store'
     | '/teams'
     | '/translate'
+    | '/admin/platform'
     | '/clans/$clanId'
     | '/games/hangman'
     | '/games/memory-match'
@@ -281,7 +293,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   ClansRoute: typeof ClansRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -447,8 +459,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClansClanIdRouteImport
       parentRoute: typeof ClansRoute
     }
+    '/admin/platform': {
+      id: '/admin/platform'
+      path: '/platform'
+      fullPath: '/admin/platform'
+      preLoaderRoute: typeof AdminPlatformRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminPlatformRoute: typeof AdminPlatformRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminPlatformRoute: AdminPlatformRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface ClansRouteChildren {
   ClansClanIdRoute: typeof ClansClanIdRoute
@@ -486,7 +515,7 @@ const TeamsRouteWithChildren = TeamsRoute._addFileChildren(TeamsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   ClansRoute: ClansRouteWithChildren,
   DashboardRoute: DashboardRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,

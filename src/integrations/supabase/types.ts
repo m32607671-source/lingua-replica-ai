@@ -100,6 +100,54 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_audit_logs: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string
+          after_state: Json | null
+          before_state: Json | null
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          target_id: string | null
+          target_label: string | null
+          target_type: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id: string
+          after_state?: Json | null
+          before_state?: Json | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_label?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string
+          after_state?: Json | null
+          before_state?: Json | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_label?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       challenge_progress: {
         Row: {
           challenge_id: string
@@ -888,6 +936,8 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          ban_reason: string | null
+          banned_at: string | null
           bio: string | null
           coins: number
           country: string | null
@@ -903,6 +953,7 @@ export type Database = {
           rank_points: number
           rank_tier: string
           streak: number
+          suspended_until: string | null
           total_games: number
           total_wins: number
           translations_count: number
@@ -912,6 +963,8 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
           bio?: string | null
           coins?: number
           country?: string | null
@@ -927,6 +980,7 @@ export type Database = {
           rank_points?: number
           rank_tier?: string
           streak?: number
+          suspended_until?: string | null
           total_games?: number
           total_wins?: number
           translations_count?: number
@@ -936,6 +990,8 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
           bio?: string | null
           coins?: number
           country?: string | null
@@ -951,6 +1007,7 @@ export type Database = {
           rank_points?: number
           rank_tier?: string
           streak?: number
+          suspended_until?: string | null
           total_games?: number
           total_wins?: number
           translations_count?: number
@@ -1494,6 +1551,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _require_admin: { Args: never; Returns: undefined }
       _team_limits: {
         Args: { _plan: Database["public"]["Enums"]["subscription_plan"] }
         Returns: {
@@ -1502,7 +1560,76 @@ export type Database = {
           max_teams: number
         }[]
       }
+      _write_audit: {
+        Args: {
+          _action: string
+          _after: Json
+          _before: Json
+          _details: Json
+          _target_id: string
+          _target_label: string
+          _target_type: string
+        }
+        Returns: undefined
+      }
+      admin_adjust_coins: {
+        Args: { _delta: number; _reason?: string; _user_id: string }
+        Returns: Json
+      }
+      admin_adjust_xp: {
+        Args: { _delta: number; _reason?: string; _user_id: string }
+        Returns: Json
+      }
+      admin_ban_user: {
+        Args: { _reason?: string; _user_id: string }
+        Returns: Json
+      }
+      admin_change_plan: {
+        Args: {
+          _months?: number
+          _plan: Database["public"]["Enums"]["subscription_plan"]
+          _user_id: string
+        }
+        Returns: Json
+      }
       admin_diagnostics: { Args: never; Returns: Json }
+      admin_grant_achievement: {
+        Args: { _achievement_id: string; _user_id: string }
+        Returns: Json
+      }
+      admin_grant_cosmetic: {
+        Args: { _cosmetic_id: string; _user_id: string }
+        Returns: Json
+      }
+      admin_grant_skin: {
+        Args: { _skin_id: string; _user_id: string }
+        Returns: Json
+      }
+      admin_list_users: {
+        Args: { _limit?: number; _search?: string }
+        Returns: {
+          banned_at: string
+          coins: number
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          is_admin: boolean
+          is_super_admin: boolean
+          last_sign_in_at: string
+          level: number
+          plan: string
+          suspended_until: string
+          xp: number
+        }[]
+      }
+      admin_platform_stats: { Args: never; Returns: Json }
+      admin_reset_user_progress: { Args: { _user_id: string }; Returns: Json }
+      admin_suspend_user: {
+        Args: { _reason?: string; _until: string; _user_id: string }
+        Returns: Json
+      }
+      admin_unban_user: { Args: { _user_id: string }; Returns: Json }
       assign_project_member: {
         Args: {
           _project_id: string
@@ -1603,6 +1730,7 @@ export type Database = {
         Args: { _clan_id: string; _user_id: string }
         Returns: boolean
       }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       is_team_member: {
         Args: { _team_id: string; _user_id: string }
         Returns: boolean
@@ -1692,7 +1820,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "super_admin"
       challenge_kind: "daily" | "weekly" | "monthly"
       clan_war_status: "scheduled" | "active" | "completed"
       coin_tx_kind: "earn" | "spend" | "refund" | "bonus"
@@ -1734,6 +1862,7 @@ export type Database = {
         | "tournament"
         | "event"
         | "companion"
+        | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1861,7 +1990,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "super_admin"],
       challenge_kind: ["daily", "weekly", "monthly"],
       clan_war_status: ["scheduled", "active", "completed"],
       coin_tx_kind: ["earn", "spend", "refund", "bonus"],
@@ -1906,6 +2035,7 @@ export const Constants = {
         "tournament",
         "event",
         "companion",
+        "admin",
       ],
     },
   },
