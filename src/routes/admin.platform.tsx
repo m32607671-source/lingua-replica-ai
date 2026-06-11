@@ -124,7 +124,7 @@ function UsersPanel() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase.rpc("admin_list_users", { _search: search || null, _limit: 200 });
+    const { data, error } = await (supabase as unknown as { rpc: (n: string, a: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }> }).rpc("admin_list_users", { _search: search || null, _limit: 200 });
     if (error) toast.error(error.message);
     else setUsers((data ?? []) as AdminUserRow[]);
     setLoading(false);
@@ -227,10 +227,10 @@ function ManageUserDialog({ user, onClose, onChange }: { user: AdminUserRow; onC
             <Input placeholder="Reason (optional)" value={reason} onChange={(e) => setReason(e.target.value)} />
             <div className="flex gap-2">
               <Button size="sm" disabled={busy || !xpDelta} onClick={() =>
-                run("XP updated", () => supabase.rpc("admin_adjust_xp", { _user_id: user.id, _delta: parseInt(xpDelta, 10) || 0, _reason: reason || null }) as Promise<{ error: { message: string } | null }>)
+                run("XP updated", () => rpc("admin_adjust_xp", { _user_id: user.id, _delta: parseInt(xpDelta, 10) || 0, _reason: reason || undefined }))
               }><Zap className="h-3 w-3 mr-1" />Apply XP</Button>
               <Button size="sm" disabled={busy || !coinDelta} onClick={() =>
-                run("Coins updated", () => supabase.rpc("admin_adjust_coins", { _user_id: user.id, _delta: parseInt(coinDelta, 10) || 0, _reason: reason || null }) as Promise<{ error: { message: string } | null }>)
+                run("Coins updated", () => rpc("admin_adjust_coins", { _user_id: user.id, _delta: parseInt(coinDelta, 10) || 0, _reason: reason || undefined }))
               }><Coins className="h-3 w-3 mr-1" />Apply Coins</Button>
             </div>
           </section>
@@ -247,7 +247,7 @@ function ManageUserDialog({ user, onClose, onChange }: { user: AdminUserRow; onC
                 </SelectContent>
               </Select>
               <Button size="sm" disabled={busy || plan === user.plan} onClick={() =>
-                run("Plan changed", () => supabase.rpc("admin_change_plan", { _user_id: user.id, _plan: plan as "free" | "pro" | "business", _months: 1 }) as Promise<{ error: { message: string } | null }>)
+                run("Plan changed", () => rpc("admin_change_plan", { _user_id: user.id, _plan: plan as "free" | "pro" | "business", _months: 1 }))
               }>Change plan</Button>
             </div>
           </section>
@@ -258,22 +258,22 @@ function ManageUserDialog({ user, onClose, onChange }: { user: AdminUserRow; onC
             <div className="flex flex-wrap gap-2">
               {user.banned_at ? (
                 <Button size="sm" variant="outline" disabled={busy} onClick={() =>
-                  run("Unbanned", () => supabase.rpc("admin_unban_user", { _user_id: user.id }) as Promise<{ error: { message: string } | null }>)
+                  run("Unbanned", () => rpc("admin_unban_user", { _user_id: user.id }))
                 }>Unban</Button>
               ) : (
                 <>
                   <Button size="sm" variant="destructive" disabled={busy || user.is_super_admin} onClick={() =>
-                    run("Banned", () => supabase.rpc("admin_ban_user", { _user_id: user.id, _reason: banReason || null }) as Promise<{ error: { message: string } | null }>)
+                    run("Banned", () => rpc("admin_ban_user", { _user_id: user.id, _reason: banReason || undefined }))
                   }>Ban</Button>
                   <Button size="sm" variant="outline" disabled={busy || user.is_super_admin} onClick={() => {
                     const until = new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString();
-                    run("Suspended 7d", () => supabase.rpc("admin_suspend_user", { _user_id: user.id, _until: until, _reason: banReason || null }) as Promise<{ error: { message: string } | null }>);
+                    run("Suspended 7d", () => rpc("admin_suspend_user", { _user_id: user.id, _until: until, _reason: banReason || undefined }));
                   }}>Suspend 7 days</Button>
                 </>
               )}
               <Button size="sm" variant="outline" disabled={busy} onClick={() => {
                 if (!confirm("Reset all progress for this user? This deletes XP, sessions, achievements, streaks.")) return;
-                run("Progress reset", () => supabase.rpc("admin_reset_user_progress", { _user_id: user.id }) as Promise<{ error: { message: string } | null }>);
+                run("Progress reset", () => rpc("admin_reset_user_progress", { _user_id: user.id }));
               }}><RotateCcw className="h-3 w-3 mr-1" />Reset progress</Button>
             </div>
           </section>
