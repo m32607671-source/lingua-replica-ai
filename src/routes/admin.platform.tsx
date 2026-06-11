@@ -196,6 +196,8 @@ function ManageUserDialog({ user, onClose, onChange }: { user: AdminUserRow; onC
   const [banReason, setBanReason] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const rpc = (supabase as unknown as { rpc: (name: string, args: Record<string, unknown>) => Promise<{ error: { message: string } | null }> }).rpc.bind(supabase);
+
   const run = async (label: string, fn: () => Promise<{ error: { message: string } | null }>) => {
     setBusy(true);
     const { error } = await fn();
@@ -203,6 +205,7 @@ function ManageUserDialog({ user, onClose, onChange }: { user: AdminUserRow; onC
     if (error) toast.error(error.message);
     else { toast.success(label); onChange(); }
   };
+
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
